@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Boardwalk Book Studio</title>
+  <title>Boardwalk Book Studio — Writer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/main.css">
 </head>
@@ -10,16 +10,17 @@
 
   <!-- Logo -->
   <img src="img/publish-logo.JPG" id="brandLogo"
-       onclick="window.open('https://yourwebsite.com', '_blank')">
+       onclick="window.location.href='index.html'">
 
   <div id="app">
 
-    <!-- LEFT SIDEBAR (JS BUILDS THE ENTIRE BOOK TREE HERE) -->
+    <!-- LEFT SIDEBAR (BUILT BY writer.js) -->
     <section class="panel panel-left" id="leftSidebar"></section>
 
     <!-- RIGHT: EDITOR -->
     <section class="panel panel-right">
 
+      <!-- PAGE TITLE + SUBTITLE -->
       <div class="panel-header">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Page title">
         <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)">
@@ -67,8 +68,18 @@
 
     </section>
 
+    <!-- CONTROL DOCK -->
+    <div id="controlDock">
+      <button id="saveBtn" class="dock-btn">💾 Save</button>
+      <button id="previewBtn" class="dock-btn">👁️ Preview</button>
+      <button id="publishBtn" class="dock-btn"
+              onclick="window.location.href='publish.html'">🚀 Publish</button>
+      <button id="exportBtn" class="dock-btn">📦 Export</button>
+      <button id="toolsBtn" class="dock-btn">⚙️ Tools</button>
+    </div>
+
   </div>
 
-  <script src="js/index.js" type="module"></script>
+  <script src="js/writer.js" type="module"></script>
 </body>
 </html>
