@@ -1,5 +1,27 @@
 // ======================================================
-// STATE
+// BOOK FORMAT STATE
+// ======================================================
+const book = {
+  title: "",
+  subtitle: "",
+  author: "",
+  frontMatter: {
+    dedication: true,
+    acknowledgments: true,
+    copyright: true
+  },
+  backMatter: {
+    aboutAuthor: true,
+    extras: false
+  },
+  layout: {
+    trimSize: "6x9",
+    marginPreset: "standard"
+  }
+};
+
+// ======================================================
+// CHAPTER STATE
 // ======================================================
 export let chapters = [
   {
@@ -11,7 +33,6 @@ export let chapters = [
 
 export let currentId = "ch1";
 
-
 // ======================================================
 // DOM REFERENCES
 // ======================================================
@@ -20,83 +41,141 @@ const addChapterBtn = document.getElementById("addChapterBtn");
 const chapterTitleInput = document.getElementById("chapterTitle");
 const editor = document.getElementById("editorContent");
 
+const bookTitle = document.getElementById("bookTitle");
+const bookSubtitle = document.getElementById("bookSubtitle");
+const bookAuthor = document.getElementById("bookAuthor");
+const hasDedication = document.getElementById("hasDedication");
+const hasAcknowledgments = document.getElementById("hasAcknowledgments");
+const hasCopyright = document.getElementById("hasCopyright");
+const hasAboutAuthor = document.getElementById("hasAboutAuthor");
+const hasExtras = document.getElementById("hasExtras");
+const trimSize = document.getElementById("trimSize");
+const marginPreset = document.getElementById("marginPreset");
+
+const wordStats = document.getElementById("wordStats");
+const saveIndicator = document.getElementById("saveIndicator");
+const nextStepGuide = document.getElementById("nextStepGuide");
 
 // ======================================================
-// RENDER CHAPTER LIST
+// BOOK FORMAT BINDINGS
+// ======================================================
+bookTitle.addEventListener("input", () => (book.title = bookTitle.value));
+bookSubtitle.addEventListener("input", () => (book.subtitle = bookSubtitle.value));
+bookAuthor.addEventListener("input", () => (book.author = bookAuthor.value));
+
+hasDedication.onchange = () => (book.frontMatter.dedication = hasDedication.checked);
+hasAcknowledgments.onchange = () => (book.frontMatter.acknowledgments = hasAcknowledgments.checked);
+hasCopyright.onchange = () => (book.frontMatter.copyright = hasCopyright.checked);
+
+hasAboutAuthor.onchange = () => (book.backMatter.aboutAuthor = hasAboutAuthor.checked);
+hasExtras.onchange = () => (book.backMatter.extras = hasExtras.checked);
+
+trimSize.onchange = () => (book.layout.trimSize = trimSize.value);
+marginPreset.onchange = () => (book.layout.marginPreset = marginPreset.value);
+
+// ======================================================
+// CHAPTER LIST
 // ======================================================
 function renderChapters() {
   chaptersList.innerHTML = "";
-
   chapters.forEach(ch => {
     const div = document.createElement("div");
     div.className = "chapter-item" + (ch.id === currentId ? " active" : "");
     div.textContent = ch.title || "Untitled chapter";
-
     div.onclick = () => selectChapter(ch.id);
-
     chaptersList.appendChild(div);
   });
 }
 
-
-// ======================================================
-// SELECT CHAPTER
-// ======================================================
 function selectChapter(id) {
   currentId = id;
-
   const ch = chapters.find(c => c.id === id);
   if (!ch) return;
-
   chapterTitleInput.value = ch.title;
   editor.innerHTML = ch.content;
-
   renderChapters();
+  updateStats();
+  updateNextStep();
 }
 
-
-// ======================================================
-// ADD CHAPTER
-// ======================================================
 addChapterBtn.onclick = () => {
   const id = "ch" + (chapters.length + 1);
-
-  const newChapter = {
+  const ch = {
     id,
     title: "New Chapter " + chapters.length,
     content: "This is a new chapter. Start writing..."
   };
-
-  chapters.push(newChapter);
+  chapters.push(ch);
   selectChapter(id);
 };
 
-
-// ======================================================
-// SYNC TITLE
-// ======================================================
 chapterTitleInput.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
   if (!ch) return;
-
   ch.title = chapterTitleInput.value;
   renderChapters();
 });
 
-
 // ======================================================
-// SYNC CONTENT
+// EDITOR SYNC + STATS
 // ======================================================
 editor.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
   if (!ch) return;
-
   ch.content = editor.innerHTML;
+  updateStats();
+  triggerSaveIndicator();
+  updateNextStep();
 });
 
+function updateStats() {
+  const text = editor.innerText || "";
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const chars = text.replace(/\s/g, "").length;
+  const minutes = Math.max(1, Math.ceil(words / 200));
+  wordStats.innerHTML = `${words} words • ${chars} characters • ~${minutes} min read`;
+}
+
+function triggerSaveIndicator() {
+  saveIndicator.textContent = "Saved";
+  saveIndicator.classList.add("saved");
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(() => {
+    saveIndicator.textContent = "Saving…";
+    saveIndicator.classList.remove("saved");
+  }, 1200);
+}
 
 // ======================================================
-// TOOLBAR INITIALIZATION
+// NEXT STEP GUIDE
+// ======================================================
+function updateNextStep() {
+  const ch = chapters.find(c => c.id === currentId);
+  if (!ch) return;
+
+  const text = (ch.content || "").replace(/<[^>]+>/g, "").trim();
+  const words = text.split(/\s+/).filter(Boolean).length;
+
+  if (!book.title) {
+    nextStepGuide.textContent = "Next step: Give your book a title on the left.";
+    return;
+  }
+
+  if (chapters.length === 1 && words < 50) {
+    nextStepGuide.textContent = "Next step: Flesh out your first chapter. Aim for at least a few paragraphs.";
+    return;
+  }
+
+  if (chapters.length < 3) {
+    nextStepGuide.textContent = "Next step: Add more chapters to build your structure.";
+    return;
+  }
+
+  nextStepGuide.textContent = "Next step: Keep refining chapters. When ready, move to the publish/cover stage.";
+}
+
+// ======================================================
+// TOOLBAR
 // ======================================================
 function initToolbar() {
   const toolbar = document.getElementById("editorToolbar");
@@ -122,7 +201,6 @@ function initToolbar() {
     const btn = document.createElement("button");
     btn.className = "tool-btn";
     btn.innerHTML = tool.icon;
-
     btn.onclick = () => {
       if (tool.arg) {
         document.execCommand(tool.cmd, false, tool.arg);
@@ -131,54 +209,36 @@ function initToolbar() {
       }
       editor.focus();
     };
-
     toolbar.appendChild(btn);
   });
 
-  // Font size
   document.getElementById("fontSizeSelect").onchange = e => {
     document.execCommand("fontSize", false, e.target.value);
     editor.focus();
   };
 
-  // Line spacing
   document.getElementById("lineSpaceSelect").onchange = e => {
     editor.style.lineHeight = e.target.value;
   };
 
-  // Letter spacing
   document.getElementById("letterSpaceSelect").oninput = e => {
     editor.style.letterSpacing = e.target.value + "px";
   };
 
-  // Scene break
-  document.getElementById("insertSceneBreak")?.addEventListener("click", () => {
+  document.getElementById("insertSceneBreak").onclick = () => {
     document.execCommand(
       "insertHTML",
       false,
       `<div style="text-align:center;margin:20px 0;color:#D4AF37;">✦ ✦ ✦</div>`
     );
-  });
+  };
 }
 
-
 // ======================================================
-// INITIALIZE CORE
+// INIT
 // ======================================================
 renderChapters();
 selectChapter("ch1");
 initToolbar();
-
-
-// ======================================================
-// MODULE PACKS
-// ======================================================
-import editingPowerPack from "./editingPowerPack.js";
-import storytellingPack from "./storytellingPack.js";
-import publishingPack from "./publishingPack.js";
-import uiUxPack from "./uiUxPack.js";
-
-editingPowerPack();
-storytellingPack();
-publishingPack();
-uiUxPack();
+updateStats();
+updateNextStep();
