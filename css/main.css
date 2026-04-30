@@ -1,0 +1,82 @@
+:root {
+  --blue: #0b3c73;
+  --blue-soft: #134f96;
+  --red-light: #ff6b6b;
+  --white: #ffffff;
+  --bg: #f5f7fb;
+  --radius: 14px;
+  --shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: radial-gradient(circle at top left, #e0f2ff, #ffecec 40%, #f5f7fb 80%);
+  color: #1f2933;
+  height: 100vh;
+  display: flex;
+}
+
+#app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--blue);
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.btn-red {
+  background: var(--red-light);
+  color: var(--white);
+}
+
+.chapter-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f0f4ff;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.chapter-item.active {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.editor-box {
+  flex: 1;
+  border-radius: 10px;
+  border: 1px solid #d6d9e5;
+  padding: 10px;
+  background: var(--white);
+  overflow-y: auto;
+}
