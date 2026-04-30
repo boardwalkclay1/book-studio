@@ -1,0 +1,199 @@
+/* ============================================================
+   PUBLISH PAGE LAYOUT
+   ============================================================ */
+
+.publish-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 20px;
+  padding: 120px 40px 40px;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   LEFT PANEL — BOOK META + COVER + NOTES
+   ============================================================ */
+
+.publish-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* BOOK META */
+.publish-meta {
+  background: rgba(0,0,0,0.55);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.publish-meta-title {
+  font-size: 22px;
+  color: var(--gold-soft);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.publish-meta-subtitle {
+  font-size: 14px;
+  color: rgba(245,215,110,0.85);
+  margin-bottom: 10px;
+}
+
+.publish-meta-line {
+  font-size: 13px;
+  color: rgba(245,215,110,0.75);
+  margin-bottom: 4px;
+}
+
+/* COVER BLOCK */
+.publish-cover-block {
+  background: rgba(0,0,0,0.55);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.cover-preview {
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  border: 1px dashed rgba(212,175,55,0.45);
+  background: radial-gradient(circle at top, #222 0, #000 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-placeholder-text {
+  font-size: 13px;
+  color: rgba(245,215,110,0.6);
+}
+
+.cover-input {
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+/* NOTES */
+.publish-notes {
+  background: rgba(0,0,0,0.55);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.publish-notes-input {
+  width: 100%;
+  min-height: 100px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.35);
+  background: #050505;
+  color: var(--gold);
+  padding: 10px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+/* ============================================================
+   RIGHT PANEL — EXPORT SETTINGS
+   ============================================================ */
+
+.publish-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* SUBPANELS */
+.subpanel {
+  background: rgba(0,0,0,0.55);
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212,175,55,0.25);
+}
+
+.sub-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--gold-soft);
+  margin-bottom: 10px;
+}
+
+/* EXPORT OPTIONS */
+.export-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: 0.15s;
+}
+
+.export-option:hover {
+  background: rgba(212,175,55,0.15);
+}
+
+/* INPUTS */
+.field-input {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.35);
+  background: #050505;
+  color: var(--gold);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
+
+.publish-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.publish-actions .btn {
+  flex: 1;
+  min-width: 160px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 12px;
+}
+
+/* ============================================================
+   STATUS / LOG
+   ============================================================ */
+
+.publish-status {
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(245,215,110,0.85);
+  padding: 10px;
+  background: rgba(0,0,0,0.45);
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.25);
+}
