@@ -8,20 +8,62 @@ const subtitleInput = document.getElementById("newBookSubtitle");
 const authorInput = document.getElementById("newBookAuthor");
 const genreInput = document.getElementById("newBookGenre");
 const audienceInput = document.getElementById("newBookAudience");
+const descInput = document.getElementById("newBookDescription");
 
 const createBookConfirm = document.getElementById("createBookConfirm");
 const closeModal = document.getElementById("closeModal");
 
-// LOAD BOOKS
+// HELPERS
+function getBooks() {
+  return JSON.parse(localStorage.getItem("books") || "[]");
+}
+
+function saveBooks(books) {
+  localStorage.setItem("books", JSON.stringify(books));
+}
+
+function openBook(id) {
+  localStorage.setItem("currentBook", id);
+  window.location.href = "writer.html";
+}
+
+// RENDER BOOK GRID
 function loadBooks() {
-  const books = JSON.parse(localStorage.getItem("books") || "[]");
+  const books = getBooks();
+
+  if (books.length === 0) {
+    bookGrid.innerHTML = `
+      <div class="empty-state">
+        <p>You haven't created any books yet.</p>
+        <p>Click <strong>Create New Book</strong> to get started.</p>
+      </div>
+    `;
+    return;
+  }
 
   bookGrid.innerHTML = books
     .map(
       b => `
       <div class="book-card" data-id="${b.id}">
-        <div class="book-title">${b.title}</div>
-        <div class="book-author">${b.author}</div>
+        
+        <div class="book-cover">
+          ${
+            b.coverDataUrl
+              ? `<img src="${b.coverDataUrl}" alt="Cover">`
+              : `<div class="cover-placeholder">No Cover</div>`
+          }
+        </div>
+
+        <div class="book-info">
+          <div class="book-title">${b.title}</div>
+          ${
+            b.subtitle
+              ? `<div class="book-subtitle">${b.subtitle}</div>`
+              : ""
+          }
+          <div class="book-author">by ${b.author || "Unknown"}</div>
+        </div>
+
       </div>
     `
     )
@@ -30,12 +72,6 @@ function loadBooks() {
   document.querySelectorAll(".book-card").forEach(card => {
     card.onclick = () => openBook(card.dataset.id);
   });
-}
-
-// OPEN BOOK → GO TO WRITER
-function openBook(id) {
-  localStorage.setItem("currentBook", id);
-  window.location.href = "writer.html";
 }
 
 // SHOW MODAL
@@ -60,12 +96,14 @@ createBookConfirm.onclick = () => {
     author: authorInput.value.trim(),
     genre: genreInput.value.trim(),
     audience: audienceInput.value.trim(),
-    created: Date.now()
+    description: descInput.value.trim(),
+    created: Date.now(),
+    coverDataUrl: null
   };
 
-  const books = JSON.parse(localStorage.getItem("books") || "[]");
+  const books = getBooks();
   books.push(newBook);
-  localStorage.setItem("books", JSON.stringify(books));
+  saveBooks(books);
 
   newBookModal.classList.add("hidden");
   loadBooks();
