@@ -2,16 +2,143 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Publish · Book Studio</title>
+  <title>Boardwalk Book Studio — Publish</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <link rel="stylesheet" href="css/publish.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
 
-  <div id="publishApp"></div>
+  <!-- Logo -->
+  <img src="img/publish-logo.JPG" id="brandLogo"
+       onclick="window.location.href='index.html'">
 
-  <script type="module" src="js/publish.js"></script>
+  <div id="app" class="publish-layout">
+
+    <!-- LEFT: BOOK SUMMARY + COVER -->
+    <section class="panel panel-left publish-left">
+
+      <div class="panel-header">
+        <h2 class="panel-title">Publish Book</h2>
+      </div>
+
+      <div id="publishBookMeta" class="publish-meta">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="publish-cover-block">
+        <h3 class="sub-title">Cover</h3>
+
+        <div id="coverPreview" class="cover-preview">
+          <span class="cover-placeholder-text">No cover uploaded</span>
+        </div>
+
+        <input type="file" id="coverInput" accept="image/*" class="cover-input">
+        <button id="removeCoverBtn" class="btn">Remove Cover</button>
+      </div>
+
+      <div class="publish-notes">
+        <h3 class="sub-title">Notes</h3>
+        <textarea id="publishNotes" class="publish-notes-input"
+                  placeholder="Any special notes for printing, formatting, or distribution..."></textarea>
+      </div>
+
+    </section>
+
+    <!-- RIGHT: EXPORT + SETTINGS -->
+    <section class="panel panel-right publish-right">
+
+      <div class="panel-header">
+        <h2 class="panel-title">Export & Settings</h2>
+      </div>
+
+      <!-- FORMAT OPTIONS -->
+      <div class="subpanel">
+        <h3 class="sub-title">Export Format</h3>
+
+        <div class="export-options">
+          <label class="export-option">
+            <input type="radio" name="exportFormat" value="pdf-print" checked>
+            <span>PDF — Print Ready</span>
+          </label>
+
+          <label class="export-option">
+            <input type="radio" name="exportFormat" value="pdf-digital">
+            <span>PDF — Digital</span>
+          </label>
+
+          <label class="export-option">
+            <input type="radio" name="exportFormat" value="epub">
+            <span>EPUB (eBook)</span>
+          </label>
+
+          <label class="export-option">
+            <input type="radio" name="exportFormat" value="docx">
+            <span>DOCX (Word)</span>
+          </label>
+
+          <label class="export-option">
+            <input type="radio" name="exportFormat" value="markdown">
+            <span>Markdown / Plain Text</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- PRINT SETTINGS -->
+      <div class="subpanel">
+        <h3 class="sub-title">Print Settings</h3>
+
+        <label class="field-label">Trim Size</label>
+        <select id="publishTrimSize" class="field-input">
+          <option value="5x8">5 x 8 in</option>
+          <option value="5.5x8.5">5.5 x 8.5 in</option>
+          <option value="6x9" selected>6 x 9 in</option>
+          <option value="8.5x11">8.5 x 11 in</option>
+        </select>
+
+        <label class="field-label">Interior</label>
+        <select id="publishInterior" class="field-input">
+          <option value="b&w" selected>Black & White</option>
+          <option value="color">Color</option>
+        </select>
+
+        <label class="field-label">Paper</label>
+        <select id="publishPaper" class="field-input">
+          <option value="cream" selected>Cream</option>
+          <option value="white">White</option>
+        </select>
+      </div>
+
+      <!-- COPYRIGHT / ISBN -->
+      <div class="subpanel">
+        <h3 class="sub-title">Copyright & ISBN</h3>
+
+        <label class="field-label">Publisher / Imprint</label>
+        <input id="publishImprint" class="field-input" placeholder="Your imprint or name">
+
+        <label class="field-label">ISBN (optional)</label>
+        <input id="publishISBN" class="field-input" placeholder="ISBN-13">
+
+        <label class="field-label">Year</label>
+        <input id="publishYear" class="field-input" placeholder="2026">
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="publish-actions">
+        <button id="backToWriterBtn" class="btn">← Back to Writer</button>
+        <button id="previewExportBtn" class="btn">👁️ Preview Export</button>
+        <button id="downloadExportBtn" class="btn btn-gold">📦 Download File</button>
+        <button id="finalPublishBtn" class="btn btn-gold">🚀 Finalize & Mark as Published</button>
+      </div>
+
+      <!-- STATUS / LOG -->
+      <div id="publishStatus" class="publish-status">
+        Ready to export.
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="js/publish.js" type="module"></script>
 </body>
 </html>
