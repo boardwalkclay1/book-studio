@@ -9,17 +9,18 @@
 <body>
 
   <!-- Logo -->
-  <img src="img/publish-logo.JPG" id="brandLogo">
+  <img src="img/publish-logo.JPG" id="brandLogo" onclick="window.location.href='index.html'">
 
   <div id="libraryApp">
 
-    <h1 class="library-title">Your Books</h1>
+    <!-- HEADER -->
+    <div class="library-header">
+      <h1 class="library-title">Your Books</h1>
+      <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
+    </div>
 
     <!-- BOOK GRID -->
     <div id="bookGrid" class="book-grid"></div>
-
-    <!-- NEW BOOK BUTTON -->
-    <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
 
   </div>
 
@@ -27,7 +28,7 @@
   <div id="newBookModal" class="modal hidden">
     <div class="modal-content">
 
-      <h2>Create New Book</h2>
+      <h2 class="modal-title">Create New Book</h2>
 
       <label class="field-label">Book Title</label>
       <input id="newBookTitle" class="field-input" placeholder="Enter book title">
@@ -44,8 +45,13 @@
       <label class="field-label">Audience</label>
       <input id="newBookAudience" class="field-input" placeholder="Adults, YA, Middle Grade...">
 
-      <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
-      <button id="closeModal" class="btn modal-btn">Cancel</button>
+      <label class="field-label">Short Description</label>
+      <textarea id="newBookDescription" class="field-input" placeholder="What is this book about?"></textarea>
+
+      <div class="modal-actions">
+        <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
+        <button id="closeModal" class="btn modal-btn">Cancel</button>
+      </div>
 
     </div>
   </div>
