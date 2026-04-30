@@ -14,50 +14,86 @@
 
   <div id="app">
 
-    <!-- LEFT PANEL: Chapters + Story Tools -->
+    <!-- LEFT: BOOK FORMAT -->
     <section class="panel panel-left">
 
       <div class="panel-header">
-        <h2 class="panel-title">Chapters</h2>
-        <button id="addChapterBtn" class="btn btn-gold">+ Add</button>
+        <h2 class="panel-title">Book Format</h2>
       </div>
 
-      <div id="chaptersList" class="chapters-list"></div>
-
-      <!-- Storytelling Pack Anchors -->
+      <!-- Book identity -->
       <div class="subpanel">
-        <h3 class="sub-title">Characters Detected</h3>
-        <div id="storyCharacters" class="story-box"></div>
+        <h3 class="sub-title">Book Identity</h3>
+
+        <label class="field-label">Book title</label>
+        <input id="bookTitle" class="field-input" placeholder="Enter book title">
+
+        <label class="field-label">Subtitle</label>
+        <input id="bookSubtitle" class="field-input" placeholder="Optional subtitle">
+
+        <label class="field-label">Author name</label>
+        <input id="bookAuthor" class="field-input" placeholder="Your name or pen name">
       </div>
 
+      <!-- Structure -->
       <div class="subpanel">
-        <h3 class="sub-title">Timeline</h3>
-        <div id="storyTimeline" class="story-box"></div>
+        <h3 class="sub-title">Structure</h3>
+
+        <label class="field-label">Front matter</label>
+        <div class="toggle-row">
+          <label><input type="checkbox" id="hasDedication" checked> Dedication</label>
+          <label><input type="checkbox" id="hasAcknowledgments" checked> Acknowledgments</label>
+          <label><input type="checkbox" id="hasCopyright" checked> Copyright page</label>
+        </div>
+
+        <label class="field-label">Back matter</label>
+        <div class="toggle-row">
+          <label><input type="checkbox" id="hasAboutAuthor" checked> About the author</label>
+          <label><input type="checkbox" id="hasExtras"> Extras / Notes</label>
+        </div>
       </div>
 
+      <!-- Layout -->
       <div class="subpanel">
-        <h3 class="sub-title">Plot Arc</h3>
-        <div id="storyArc" class="story-box"></div>
+        <h3 class="sub-title">Page Layout</h3>
+
+        <label class="field-label">Trim size</label>
+        <select id="trimSize" class="field-input">
+          <option value="5x8">5 x 8 in</option>
+          <option value="5.5x8.5">5.5 x 8.5 in</option>
+          <option value="6x9" selected>6 x 9 in</option>
+          <option value="8.5x11">8.5 x 11 in</option>
+        </select>
+
+        <label class="field-label">Margins</label>
+        <select id="marginPreset" class="field-input">
+          <option value="standard" selected>Standard</option>
+          <option value="wide">Wide (literary)</option>
+          <option value="compact">Compact</option>
+        </select>
       </div>
 
+      <!-- Chapters / Index -->
       <div class="subpanel">
-        <h3 class="sub-title">Scene Checklist</h3>
-        <div id="sceneChecklist" class="story-box"></div>
+        <div class="subpanel-header">
+          <h3 class="sub-title">Chapters / Index</h3>
+          <button id="addChapterBtn" class="btn btn-gold">+ Add</button>
+        </div>
+        <div id="chaptersList" class="chapters-list"></div>
       </div>
 
     </section>
 
-    <!-- RIGHT PANEL: Editor + Toolbar + Stats -->
+    <!-- RIGHT: EDITOR -->
     <section class="panel panel-right">
 
       <div class="panel-header">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Chapter title">
       </div>
 
-      <!-- Heavy Editing Toolbar -->
+      <!-- Toolbar -->
       <div id="editorToolbar" class="toolbar"></div>
 
-      <!-- Toolbar Controls -->
       <div class="toolbar-row">
         <label>Font size</label>
         <select id="fontSizeSelect">
@@ -81,18 +117,15 @@
         <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
       </div>
 
-      <!-- Editor -->
       <div id="editorContent" class="editor" contenteditable="true">
         Start writing your story...
       </div>
 
-      <!-- Stats + Helper Panels -->
       <div class="stats-panel">
         <div id="wordStats"></div>
         <div id="saveIndicator">Saving…</div>
       </div>
 
-      <div id="aiHelperBox" class="ai-helper"></div>
       <div id="nextStepGuide" class="next-step-guide"></div>
 
     </section>
