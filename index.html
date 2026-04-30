@@ -14,7 +14,7 @@
 
   <div id="app">
 
-    <!-- LEFT SIDEBAR (EMPTY — JS WILL FILL IT WITH MODULES) -->
+    <!-- LEFT SIDEBAR (JS FILLS THIS) -->
     <section class="panel panel-left" id="leftSidebar"></section>
 
     <!-- RIGHT: EDITOR -->
@@ -24,9 +24,10 @@
         <input id="chapterTitle" class="chapter-title-input" placeholder="Page title">
       </div>
 
-      <!-- Toolbar -->
+      <!-- TOOLBAR (MODULE WILL FILL THIS) -->
       <div id="editorToolbar" class="toolbar"></div>
 
+      <!-- EXTRA CONTROLS -->
       <div class="toolbar-row">
         <label>Font size</label>
         <select id="fontSizeSelect">
@@ -50,10 +51,12 @@
         <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
       </div>
 
+      <!-- EDITOR -->
       <div id="editorContent" class="editor" contenteditable="true">
         Start writing your story...
       </div>
 
+      <!-- STATS -->
       <div class="stats-panel">
         <div id="wordStats"></div>
         <div id="saveIndicator">Saving…</div>
