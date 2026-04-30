@@ -2,16 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Book Studio</title>
+  <title>Boardwalk Book Studio</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body>
 
-  <div id="app"></div>
+  <!-- Logo (top-left, clickable) -->
+  <img src="img/publish-logo.JPG" id="brandLogo"
+       onclick="window.open('https://yourwebsite.com', '_blank')">
 
-  <script type="module" src="js/index.js"></script>
+  <div id="app">
+    <!-- Left: Chapters -->
+    <section class="panel panel-left">
+      <div class="panel-header">
+        <h2 class="panel-title">Chapters</h2>
+        <button id="addChapterBtn" class="btn btn-gold">+ Add</button>
+      </div>
+      <div id="chaptersList" class="chapters-list"></div>
+    </section>
+
+    <!-- Right: Editor -->
+    <section class="panel panel-right">
+      <div class="panel-header">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Chapter title">
+      </div>
+
+      <!-- Heavy editing toolbar -->
+      <div id="editorToolbar" class="toolbar"></div>
+
+      <div class="toolbar-row">
+        <label>Font size</label>
+        <select id="fontSizeSelect">
+          <option value="2">Small</option>
+          <option value="3" selected>Normal</option>
+          <option value="5">Large</option>
+          <option value="7">Huge</option>
+        </select>
+
+        <label>Line spacing</label>
+        <select id="lineSpaceSelect">
+          <option value="1.2">1.2</option>
+          <option value="1.5" selected>1.5</option>
+          <option value="1.8">1.8</option>
+          <option value="2.0">2.0</option>
+        </select>
+
+        <label>Letter spacing</label>
+        <input type="range" id="letterSpaceSelect" min="0" max="10" value="0">
+      </div>
+
+      <div id="editorContent" class="editor" contenteditable="true">
+        Start writing your story...
+      </div>
+    </section>
+  </div>
+
+  <script src="js/index.js" type="module"></script>
 </body>
 </html>
