@@ -1,15 +1,27 @@
-// Simple in-memory chapter state
-let chapters = [
-  { id: "ch1", title: "Chapter 1", content: "Start writing your story..." }
+// ------------------------------
+// STATE
+// ------------------------------
+export let chapters = [
+  {
+    id: "ch1",
+    title: "Chapter 1",
+    content: "Start writing your story..."
+  }
 ];
-let currentId = "ch1";
 
+export let currentId = "ch1";
+
+// ------------------------------
+// DOM REFS
+// ------------------------------
 const chaptersList = document.getElementById("chaptersList");
 const addChapterBtn = document.getElementById("addChapterBtn");
 const chapterTitleInput = document.getElementById("chapterTitle");
 const editor = document.getElementById("editorContent");
 
-// Render chapters
+// ------------------------------
+// RENDER CHAPTER LIST
+// ------------------------------
 function renderChapters() {
   chaptersList.innerHTML = "";
   chapters.forEach(ch => {
@@ -21,37 +33,54 @@ function renderChapters() {
   });
 }
 
+// ------------------------------
+// SELECT CHAPTER
+// ------------------------------
 function selectChapter(id) {
   currentId = id;
   const ch = chapters.find(c => c.id === id);
   if (!ch) return;
+
   chapterTitleInput.value = ch.title;
   editor.innerHTML = ch.content;
+
   renderChapters();
 }
 
-// Add chapter
+// ------------------------------
+// ADD CHAPTER
+// ------------------------------
 addChapterBtn.onclick = () => {
   const id = "ch" + (chapters.length + 1);
-  const ch = { id, title: "New Chapter " + chapters.length, content: "" };
+  const ch = {
+    id,
+    title: "New Chapter " + chapters.length,
+    content: "This is a new chapter. Start writing..."
+  };
   chapters.push(ch);
   selectChapter(id);
 };
 
-// Sync title
+// ------------------------------
+// SYNC TITLE
+// ------------------------------
 chapterTitleInput.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
   if (ch) ch.title = chapterTitleInput.value;
   renderChapters();
 });
 
-// Sync content
+// ------------------------------
+// SYNC CONTENT
+// ------------------------------
 editor.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
   if (ch) ch.content = editor.innerHTML;
 });
 
-// HEAVY EDITING TOOLBAR
+// ------------------------------
+// TOOLBAR MODULE
+// ------------------------------
 function initToolbar() {
   const toolbar = document.getElementById("editorToolbar");
 
@@ -87,25 +116,48 @@ function initToolbar() {
     toolbar.appendChild(b);
   });
 
-  const fontSize = document.getElementById("fontSizeSelect");
-  const lineSpace = document.getElementById("lineSpaceSelect");
-  const letterSpace = document.getElementById("letterSpaceSelect");
-
-  fontSize.onchange = () => {
-    document.execCommand("fontSize", false, fontSize.value);
+  // Font size
+  document.getElementById("fontSizeSelect").onchange = e => {
+    document.execCommand("fontSize", false, e.target.value);
     editor.focus();
   };
 
-  lineSpace.onchange = () => {
-    editor.style.lineHeight = lineSpace.value;
+  // Line spacing
+  document.getElementById("lineSpaceSelect").onchange = e => {
+    editor.style.lineHeight = e.target.value;
   };
 
-  letterSpace.oninput = () => {
-    editor.style.letterSpacing = letterSpace.value + "px";
+  // Letter spacing
+  document.getElementById("letterSpaceSelect").oninput = e => {
+    editor.style.letterSpacing = e.target.value + "px";
+  };
+
+  // Scene break
+  document.getElementById("insertSceneBreak").onclick = () => {
+    document.execCommand(
+      "insertHTML",
+      false,
+      `<div style="text-align:center;margin:20px 0;color:#D4AF37;">✦ ✦ ✦</div>`
+    );
   };
 }
 
-// Init
+// ------------------------------
+// INIT
+// ------------------------------
 renderChapters();
 selectChapter("ch1");
 initToolbar();
+
+// ------------------------------
+// MODULE PACK HOOKS
+// ------------------------------
+import editingPowerPack from "./editingPowerPack.js";
+import storytellingPack from "./storytellingPack.js";
+import publishingPack from "./publishingPack.js";
+import uiUxPack from "./uiUxPack.js";
+
+editingPowerPack();
+storytellingPack();
+publishingPack();
+uiUxPack();
