@@ -1,27 +1,15 @@
-// js/index.js
-
-// LEFT‑SIDE STRUCTURE MODULES
-import bookIdentity from "../modules/bookIdentity.js";
-import frontMatter from "../modules/frontMatter.js";
-import backMatter from "../modules/backMatter.js";
-import pageLayout from "../modules/pageLayout.js";
-import chapterIndex from "../modules/chapterIndex.js";
-
-// FUNCTIONAL MODULES
-import initChapters from "../modules/chapters.js";
+// IMPORT YOUR MODULES
+import bookTree from "../modules/bookTree.js";
 import initEditor from "../modules/editor.js";
 import initToolbar from "../modules/toolbar.js";
-import initWordStats from "../modules/word-stats.js";
-import initAutoSave from "../modules/auto-save.js";
-import initNextStepGuide from "../modules/next-step-guide.js";
-import initLayout from "../modules/layout.js";
+import initChapters from "../modules/chapters.js";
 
-// ROOT DOM
+// DOM
 const leftSidebar = document.getElementById("leftSidebar");
+const editor = document.getElementById("editorContent");
+const chapterTitleInput = document.getElementById("chapterTitle");
 
-// ------------------------------------------------------
-// BOOK STATE (SINGLE SOURCE OF TRUTH)
-// ------------------------------------------------------
+// BOOK STATE
 export const book = {
   identity: {
     title: "",
@@ -30,51 +18,116 @@ export const book = {
     genre: "",
     audience: ""
   },
+
   frontMatter: {
-    dedication: { enabled: true, content: "" },
-    acknowledgments: { enabled: true, content: "" },
-    copyright: { enabled: true, content: "" }
+    titlePage: { id: "titlePage", label: "Title Page", content: "" },
+    copyright: { id: "copyright", label: "Copyright", content: "" },
+    dedication: { id: "dedication", label: "Dedication", content: "" },
+    acknowledgments: { id: "acknowledgments", label: "Acknowledgments", content: "" },
+    foreword: { id: "foreword", label: "Foreword", content: "" },
+    preface: { id: "preface", label: "Preface", content: "" }
   },
+
+  parts: [],
+
   backMatter: {
-    aboutAuthor: { enabled: true, content: "" },
-    extras: { enabled: false, content: "" }
+    aboutAuthor: { id: "aboutAuthor", label: "About the Author", content: "" },
+    extras: { id: "extras", label: "Extras / Notes", content: "" },
+    bibliography: { id: "bibliography", label: "Bibliography", content: "" }
   },
+
   layout: {
-    trimSize: "6x9",
-    marginPreset: "standard"
-  },
-  parts: [] // chapters.js will manage parts/chapters here
+    id: "layout",
+    label: "Layout Settings",
+    content: ""
+  }
 };
 
-// ------------------------------------------------------
-// BUILD LEFT SIDEBAR FROM MODULES YOU ALREADY MADE
-// ------------------------------------------------------
-function renderLeftSidebar() {
-  leftSidebar.innerHTML =
-    bookIdentity() +
-    frontMatter() +
-    backMatter() +
-    pageLayout() +
-    chapterIndex();
+let currentPage = null;
 
-  // let the functional modules attach their own listeners
-  initLayout(book);
-  initChapters(book); // handles parts/chapters + click → load into editor
+// RENDER LEFT SIDEBAR
+function renderSidebar() {
+  leftSidebar.innerHTML = bookTree(book);
+  attachSidebarEvents();
 }
 
-// ------------------------------------------------------
-// INIT RIGHT‑SIDE MODULES
-// ------------------------------------------------------
-function initRightSide() {
-  initEditor(book);        // knows how to load/save current page content
-  initToolbar();           // bold/italic/etc
-  initWordStats();         // word/char counts
-  initAutoSave(book);      // saving indicator
-  initNextStepGuide(book); // guidance based on current state
+// CLICK HANDLERS
+function attachSidebarEvents() {
+  document.querySelectorAll("[data-id]").forEach(item => {
+    item.onclick = () => loadPage(item.dataset.id);
+  });
+
+  document.querySelectorAll(".tree-add-part").forEach(btn => {
+    btn.onclick = addPart;
+  });
+
+  document.querySelectorAll(".tree-add-chapter").forEach(btn => {
+    btn.onclick = () => addChapter(btn.dataset.part);
+  });
 }
 
-// ------------------------------------------------------
-// BOOT
-// ------------------------------------------------------
-renderLeftSidebar();
-initRightSide();
+// LOAD PAGE INTO EDITOR
+function loadPage(id) {
+  currentPage = findPage(id);
+  if (!currentPage) return;
+
+  chapterTitleInput.value = currentPage.label || "";
+  editor.innerHTML = currentPage.content || "";
+}
+
+// SAVE PAGE
+editor.oninput = () => {
+  if (currentPage) currentPage.content = editor.innerHTML;
+};
+
+chapterTitleInput.oninput = () => {
+  if (currentPage) {
+    currentPage.label = chapterTitleInput.value;
+    renderSidebar();
+  }
+};
+
+// FIND PAGE
+function findPage(id) {
+  if (book.frontMatter[id]) return book.frontMatter[id];
+  if (book.backMatter[id]) return book.backMatter[id];
+  if (id === "layout") return book.layout;
+
+  for (const part of book.parts) {
+    if (part.id === id) return part;
+    const ch = part.chapters.find(c => c.id === id);
+    if (ch) return ch;
+  }
+
+  return null;
+}
+
+// ADD PART
+function addPart() {
+  const num = book.parts.length + 1;
+  book.parts.push({
+    id: `part${num}`,
+    label: `Part ${num}`,
+    chapters: []
+  });
+  renderSidebar();
+}
+
+// ADD CHAPTER
+function addChapter(partId) {
+  const part = book.parts.find(p => p.id === partId);
+  const num = part.chapters.length + 1;
+
+  part.chapters.push({
+    id: `${partId}-ch${num}`,
+    label: `Chapter ${num}`,
+    content: ""
+  });
+
+  renderSidebar();
+}
+
+// INIT
+renderSidebar();
+initEditor(book);
+initToolbar();
