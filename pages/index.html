@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Boardwalk Book Studio — Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- Logo -->
+  <img src="img/publish-logo.JPG" id="brandLogo">
+
+  <div id="libraryApp">
+
+    <h1 class="library-title">Your Books</h1>
+
+    <!-- BOOK GRID -->
+    <div id="bookGrid" class="book-grid"></div>
+
+    <!-- NEW BOOK BUTTON -->
+    <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
+
+  </div>
+
+  <!-- NEW BOOK MODAL -->
+  <div id="newBookModal" class="modal hidden">
+    <div class="modal-content">
+
+      <h2>Create New Book</h2>
+
+      <label class="field-label">Book Title</label>
+      <input id="newBookTitle" class="field-input" placeholder="Enter book title">
+
+      <label class="field-label">Subtitle</label>
+      <input id="newBookSubtitle" class="field-input" placeholder="Optional subtitle">
+
+      <label class="field-label">Author Name</label>
+      <input id="newBookAuthor" class="field-input" placeholder="Your name or pen name">
+
+      <label class="field-label">Genre</label>
+      <input id="newBookGenre" class="field-input" placeholder="Fantasy, Thriller, Romance...">
+
+      <label class="field-label">Audience</label>
+      <input id="newBookAudience" class="field-input" placeholder="Adults, YA, Middle Grade...">
+
+      <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
+      <button id="closeModal" class="btn modal-btn">Cancel</button>
+
+    </div>
+  </div>
+
+  <script src="js/index.js" type="module"></script>
+</body>
+</html>
