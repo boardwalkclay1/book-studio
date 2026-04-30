@@ -1,140 +1,109 @@
-/* LEFT TREE: BOOK STRUCTURE */
-.tree-section {
-  margin-bottom: 12px;
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid rgba(212,175,55,0.25);
-  background: rgba(0,0,0,0.6);
+/* PUBLISH LAYOUT */
+.publish-layout {
+  grid-template-columns: 340px minmax(0, 1fr);
 }
 
-.tree-header {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--gold-soft);
-  margin-bottom: 6px;
-}
-
-.tree-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tree-item {
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+/* LEFT PUBLISH PANEL */
+.publish-meta {
+  margin-bottom: 14px;
   font-size: 13px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.02);
-  color: var(--gold);
-  transition: 0.15s;
+  line-height: 1.5;
 }
 
-.tree-item:hover {
-  background: rgba(212,175,55,0.12);
-}
-
-.tree-item.active {
-  background: rgba(212,175,55,0.18);
-  border-color: var(--border-gold);
-}
-
-.tree-part {
-  margin-bottom: 6px;
-}
-
-.tree-part-label {
-  font-weight: 600;
-}
-
-.tree-sublist {
-  margin-left: 10px;
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.tree-chapter {
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-/* ADDERS */
-.tree-add-part,
-.tree-add-chapter {
-  font-size: 12px;
-  color: var(--gold-soft);
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.02);
-  border: 1px dashed rgba(212,175,55,0.4);
-  margin-top: 4px;
-  transition: 0.15s;
-}
-
-.tree-add-part:hover,
-.tree-add-chapter:hover {
-  background: rgba(212,175,55,0.15);
-}
-
-/* TITLE + SUBTITLE (RIGHT PANEL) */
-.chapter-title-input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border-gold);
-  color: var(--gold-soft);
+.publish-meta-title {
   font-size: 18px;
-  padding: 4px 0;
-  outline: none;
+  color: var(--gold-soft);
   margin-bottom: 4px;
 }
 
-.chapter-subtitle-input {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px dashed rgba(212,175,55,0.4);
-  color: rgba(245,215,110,0.8);
+.publish-meta-subtitle {
   font-size: 13px;
-  padding: 2px 0 6px;
-  outline: none;
-  margin-bottom: 4px;
+  color: rgba(245,215,110,0.8);
+  margin-bottom: 6px;
 }
 
-.chapter-title-input::placeholder,
-.chapter-subtitle-input::placeholder {
-  color: rgba(245,215,110,0.4);
+.publish-meta-line {
+  font-size: 12px;
+  color: rgba(245,215,110,0.75);
 }
 
-/* CONTROL DOCK (BOTTOM-LEFT) */
-#controlDock {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
+/* COVER */
+.publish-cover-block {
+  margin-top: 10px;
+}
+
+.cover-preview {
+  width: 100%;
+  height: 180px;
+  border-radius: 10px;
+  border: 1px dashed rgba(212,175,55,0.5);
+  background: radial-gradient(circle at top, #222 0, #000 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-placeholder-text {
+  font-size: 12px;
+  color: rgba(245,215,110,0.6);
+}
+
+.cover-input {
+  margin-bottom: 6px;
+}
+
+/* NOTES */
+.publish-notes {
+  margin-top: 12px;
+}
+
+.publish-notes-input {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.35);
+  background: #050505;
+  color: var(--gold);
+  padding: 8px;
+  font-size: 13px;
+  resize: vertical;
+}
+
+/* EXPORT OPTIONS */
+.export-options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  z-index: 999;
+  gap: 6px;
+  margin-top: 6px;
 }
 
-.dock-btn {
-  background: linear-gradient(135deg, #8f6b1f, #d4af37);
-  color: #000;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 12px;
+.export-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(212,175,55,0.5);
-  transition: 0.15s;
 }
 
-.dock-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 14px rgba(245,215,110,0.8);
+/* ACTIONS */
+.publish-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* STATUS */
+.publish-status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(245,215,110,0.8);
 }
