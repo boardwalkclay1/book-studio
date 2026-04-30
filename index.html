@@ -13,24 +13,51 @@
        onclick="window.open('https://yourwebsite.com', '_blank')">
 
   <div id="app">
-    <!-- Left: Chapters -->
+
+    <!-- LEFT PANEL: Chapters + Story Tools -->
     <section class="panel panel-left">
+
       <div class="panel-header">
         <h2 class="panel-title">Chapters</h2>
         <button id="addChapterBtn" class="btn btn-gold">+ Add</button>
       </div>
+
       <div id="chaptersList" class="chapters-list"></div>
+
+      <!-- Storytelling Pack Anchors -->
+      <div class="subpanel">
+        <h3 class="sub-title">Characters Detected</h3>
+        <div id="storyCharacters" class="story-box"></div>
+      </div>
+
+      <div class="subpanel">
+        <h3 class="sub-title">Timeline</h3>
+        <div id="storyTimeline" class="story-box"></div>
+      </div>
+
+      <div class="subpanel">
+        <h3 class="sub-title">Plot Arc</h3>
+        <div id="storyArc" class="story-box"></div>
+      </div>
+
+      <div class="subpanel">
+        <h3 class="sub-title">Scene Checklist</h3>
+        <div id="sceneChecklist" class="story-box"></div>
+      </div>
+
     </section>
 
-    <!-- Right: Editor -->
+    <!-- RIGHT PANEL: Editor + Toolbar + Stats -->
     <section class="panel panel-right">
+
       <div class="panel-header">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Chapter title">
       </div>
 
-      <!-- Heavy editing toolbar -->
+      <!-- Heavy Editing Toolbar -->
       <div id="editorToolbar" class="toolbar"></div>
 
+      <!-- Toolbar Controls -->
       <div class="toolbar-row">
         <label>Font size</label>
         <select id="fontSizeSelect">
@@ -50,12 +77,26 @@
 
         <label>Letter spacing</label>
         <input type="range" id="letterSpaceSelect" min="0" max="10" value="0">
+
+        <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
       </div>
 
+      <!-- Editor -->
       <div id="editorContent" class="editor" contenteditable="true">
         Start writing your story...
       </div>
+
+      <!-- Stats + Helper Panels -->
+      <div class="stats-panel">
+        <div id="wordStats"></div>
+        <div id="saveIndicator">Saving…</div>
+      </div>
+
+      <div id="aiHelperBox" class="ai-helper"></div>
+      <div id="nextStepGuide" class="next-step-guide"></div>
+
     </section>
+
   </div>
 
   <script src="js/index.js" type="module"></script>
