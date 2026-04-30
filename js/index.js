@@ -1,6 +1,6 @@
-// ------------------------------
+// ======================================================
 // STATE
-// ------------------------------
+// ======================================================
 export let chapters = [
   {
     id: "ch1",
@@ -11,33 +11,40 @@ export let chapters = [
 
 export let currentId = "ch1";
 
-// ------------------------------
-// DOM REFS
-// ------------------------------
+
+// ======================================================
+// DOM REFERENCES
+// ======================================================
 const chaptersList = document.getElementById("chaptersList");
 const addChapterBtn = document.getElementById("addChapterBtn");
 const chapterTitleInput = document.getElementById("chapterTitle");
 const editor = document.getElementById("editorContent");
 
-// ------------------------------
+
+// ======================================================
 // RENDER CHAPTER LIST
-// ------------------------------
+// ======================================================
 function renderChapters() {
   chaptersList.innerHTML = "";
+
   chapters.forEach(ch => {
     const div = document.createElement("div");
     div.className = "chapter-item" + (ch.id === currentId ? " active" : "");
     div.textContent = ch.title || "Untitled chapter";
+
     div.onclick = () => selectChapter(ch.id);
+
     chaptersList.appendChild(div);
   });
 }
 
-// ------------------------------
+
+// ======================================================
 // SELECT CHAPTER
-// ------------------------------
+// ======================================================
 function selectChapter(id) {
   currentId = id;
+
   const ch = chapters.find(c => c.id === id);
   if (!ch) return;
 
@@ -47,44 +54,54 @@ function selectChapter(id) {
   renderChapters();
 }
 
-// ------------------------------
+
+// ======================================================
 // ADD CHAPTER
-// ------------------------------
+// ======================================================
 addChapterBtn.onclick = () => {
   const id = "ch" + (chapters.length + 1);
-  const ch = {
+
+  const newChapter = {
     id,
     title: "New Chapter " + chapters.length,
     content: "This is a new chapter. Start writing..."
   };
-  chapters.push(ch);
+
+  chapters.push(newChapter);
   selectChapter(id);
 };
 
-// ------------------------------
+
+// ======================================================
 // SYNC TITLE
-// ------------------------------
+// ======================================================
 chapterTitleInput.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
-  if (ch) ch.title = chapterTitleInput.value;
+  if (!ch) return;
+
+  ch.title = chapterTitleInput.value;
   renderChapters();
 });
 
-// ------------------------------
+
+// ======================================================
 // SYNC CONTENT
-// ------------------------------
+// ======================================================
 editor.addEventListener("input", () => {
   const ch = chapters.find(c => c.id === currentId);
-  if (ch) ch.content = editor.innerHTML;
+  if (!ch) return;
+
+  ch.content = editor.innerHTML;
 });
 
-// ------------------------------
-// TOOLBAR MODULE
-// ------------------------------
+
+// ======================================================
+// TOOLBAR INITIALIZATION
+// ======================================================
 function initToolbar() {
   const toolbar = document.getElementById("editorToolbar");
 
-  const buttons = [
+  const tools = [
     { cmd: "bold", icon: "B" },
     { cmd: "italic", icon: "I" },
     { cmd: "underline", icon: "U" },
@@ -101,19 +118,21 @@ function initToolbar() {
     { cmd: "redo", icon: "↻" }
   ];
 
-  buttons.forEach(btn => {
-    const b = document.createElement("button");
-    b.className = "tool-btn";
-    b.innerHTML = btn.icon;
-    b.onclick = () => {
-      if (btn.arg) {
-        document.execCommand(btn.cmd, false, btn.arg);
+  tools.forEach(tool => {
+    const btn = document.createElement("button");
+    btn.className = "tool-btn";
+    btn.innerHTML = tool.icon;
+
+    btn.onclick = () => {
+      if (tool.arg) {
+        document.execCommand(tool.cmd, false, tool.arg);
       } else {
-        document.execCommand(btn.cmd);
+        document.execCommand(tool.cmd);
       }
       editor.focus();
     };
-    toolbar.appendChild(b);
+
+    toolbar.appendChild(btn);
   });
 
   // Font size
@@ -133,25 +152,27 @@ function initToolbar() {
   };
 
   // Scene break
-  document.getElementById("insertSceneBreak").onclick = () => {
+  document.getElementById("insertSceneBreak")?.addEventListener("click", () => {
     document.execCommand(
       "insertHTML",
       false,
       `<div style="text-align:center;margin:20px 0;color:#D4AF37;">✦ ✦ ✦</div>`
     );
-  };
+  });
 }
 
-// ------------------------------
-// INIT
-// ------------------------------
+
+// ======================================================
+// INITIALIZE CORE
+// ======================================================
 renderChapters();
 selectChapter("ch1");
 initToolbar();
 
-// ------------------------------
-// MODULE PACK HOOKS
-// ------------------------------
+
+// ======================================================
+// MODULE PACKS
+// ======================================================
 import editingPowerPack from "./editingPowerPack.js";
 import storytellingPack from "./storytellingPack.js";
 import publishingPack from "./publishingPack.js";
