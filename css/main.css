@@ -10,7 +10,7 @@
 /* GLOBAL */
 body {
   margin: 0;
-  background: var(--black);
+  background: radial-gradient(circle at top, #111 0, #000 55%, #050505 100%);
   color: var(--gold);
   font-family: system-ui, sans-serif;
   height: 100vh;
@@ -33,7 +33,7 @@ body {
 #app {
   flex: 1;
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: 16px;
   padding: 24px 24px 24px 104px; /* space for logo */
   box-sizing: border-box;
@@ -87,9 +87,62 @@ body {
   transform: translateY(-1px);
 }
 
-/* CHAPTERS */
+/* SUBPANELS (LEFT) */
+.subpanel {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(212,175,55,0.25);
+  background: rgba(0,0,0,0.6);
+}
+
+.subpanel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sub-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #F5D76E;
+  margin: 0 0 6px;
+}
+
+.field-label {
+  display: block;
+  font-size: 11px;
+  margin-top: 6px;
+  color: rgba(245,215,110,0.8);
+}
+
+.field-input {
+  width: 100%;
+  margin-top: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(212,175,55,0.35);
+  background: #050505;
+  color: #D4AF37;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.toggle-row label {
+  font-size: 12px;
+}
+
+/* CHAPTER LIST */
 .chapters-list {
-  flex: 1;
+  max-height: 220px;
   overflow-y: auto;
   margin-top: 6px;
 }
@@ -115,7 +168,7 @@ body {
   background: rgba(212, 175, 55, 0.12);
 }
 
-/* EDITOR SIDE */
+/* RIGHT PANEL: EDITOR */
 .chapter-title-input {
   width: 100%;
   background: transparent;
@@ -165,6 +218,7 @@ body {
 /* TOOLBAR CONTROLS */
 .toolbar-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   font-size: 12px;
@@ -194,11 +248,35 @@ input[type="range"] {
   border: 1px solid var(--border-gold);
   padding: 16px;
   overflow-y: auto;
-  line-height: 1.6;
+  line-height: 1.7;
   font-size: 16px;
 }
 
 .editor:focus {
   outline: none;
   box-shadow: 0 0 14px rgba(245, 215, 110, 0.6);
+}
+
+/* STATS + NEXT STEP */
+.stats-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  margin-top: 6px;
+  color: rgba(245,215,110,0.7);
+}
+
+#saveIndicator {
+  transition: 0.2s;
+}
+
+#saveIndicator.saved {
+  color: #F5D76E;
+}
+
+.next-step-guide {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(245,215,110,0.85);
 }
