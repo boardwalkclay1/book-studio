@@ -1,187 +1,189 @@
-import { initDB } from "./db.js";
-import coverDesigner from "../modules/cover-designer.js";
-
-document.getElementById("publishApp").innerHTML = coverDesigner();
-initDB();
-
-// Canvas
-const canvas = document.getElementById("canvasArea");
-canvas.style.position = "relative";
-canvas.style.width = "900px";
-canvas.style.height = "600px";
-
-// Controls
-const fontSelect = document.getElementById("fontSelect");
-const addTextBtn = document.getElementById("addTextBtn");
-const exportCoverBtn = document.getElementById("exportCoverBtn");
-const frontInput = document.getElementById("frontCoverInput");
-const backInput = document.getElementById("backCoverInput");
-
-// State
-let selected = null;
-
-// -------------------------------
-// UTILITIES
-// -------------------------------
-function makeSelectable(el) {
-  el.onclick = (e) => {
-    e.stopPropagation();
-    selectElement(el);
-  };
+// Helpers
+function getBooks() {
+  return JSON.parse(localStorage.getItem("books") || "[]");
 }
 
-function selectElement(el) {
-  if (selected) selected.style.outline = "none";
-  selected = el;
-  selected.style.outline = "2px solid #0b3c73";
+function saveBooks(books) {
+  localStorage.setItem("books", JSON.stringify(books));
 }
 
-canvas.onclick = () => {
-  if (selected) selected.style.outline = "none";
-  selected = null;
-};
-
-// -------------------------------
-// DRAG LOGIC
-// -------------------------------
-function makeDraggable(el) {
-  let offsetX = 0;
-  let offsetY = 0;
-
-  el.onmousedown = (e) => {
-    if (e.target !== el) return;
-
-    offsetX = e.clientX - el.offsetLeft;
-    offsetY = e.clientY - el.offsetTop;
-
-    document.onmousemove = (e) => {
-      el.style.left = e.clientX - offsetX + "px";
-      el.style.top = e.clientY - offsetY + "px";
-    };
-
-    document.onmouseup = () => {
-      document.onmousemove = null;
-    };
-  };
+function getCurrentBookId() {
+  return localStorage.getItem("currentBook");
 }
 
-// -------------------------------
-// RESIZE LOGIC
-// -------------------------------
-function makeResizable(el) {
-  const handle = document.createElement("div");
-  handle.style.width = "12px";
-  handle.style.height = "12px";
-  handle.style.background = "#ff6b6b";
-  handle.style.position = "absolute";
-  handle.style.right = "-6px";
-  handle.style.bottom = "-6px";
-  handle.style.borderRadius = "50%";
-  handle.style.cursor = "nwse-resize";
-
-  el.appendChild(handle);
-
-  handle.onmousedown = (e) => {
-    e.stopPropagation();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const startW = el.offsetWidth;
-    const startH = el.offsetHeight;
-
-    document.onmousemove = (e) => {
-      const newW = startW + (e.clientX - startX);
-      const newH = startH + (e.clientY - startY);
-      el.style.width = newW + "px";
-      el.style.height = newH + "px";
-    };
-
-    document.onmouseup = () => {
-      document.onmousemove = null;
-    };
-  };
+function getCurrentBook() {
+  const id = getCurrentBookId();
+  if (!id) return null;
+  const books = getBooks();
+  return books.find(b => b.id === id) || null;
 }
 
-// -------------------------------
-// ADD TEXT
-// -------------------------------
-addTextBtn.onclick = () => {
-  const div = document.createElement("div");
-  div.className = "draggable";
-  div.contentEditable = true;
-  div.style.fontFamily = fontSelect.value;
-  div.style.fontSize = "28px";
-  div.style.left = "40px";
-  div.style.top = "40px";
-  div.style.position = "absolute";
-  div.style.padding = "4px";
-  div.textContent = "New Text";
+function updateCurrentBook(updater) {
+  const id = getCurrentBookId();
+  if (!id) return;
+  const books = getBooks();
+  const idx = books.findIndex(b => b.id === id);
+  if (idx === -1) return;
+  updater(books[idx]);
+  saveBooks(books);
+}
 
-  canvas.appendChild(div);
+// DOM
+const metaContainer = document.getElementById("publishBookMeta");
+const coverPreview = document.getElementById("coverPreview");
+const coverInput = document.getElementById("coverInput");
+const removeCoverBtn = document.getElementById("removeCoverBtn");
+const notesInput = document.getElementById("publishNotes");
 
-  makeSelectable(div);
-  makeDraggable(div);
-};
+const trimSizeSelect = document.getElementById("publishTrimSize");
+const interiorSelect = document.getElementById("publishInterior");
+const paperSelect = document.getElementById("publishPaper");
+const imprintInput = document.getElementById("publishImprint");
+const isbnInput = document.getElementById("publishISBN");
+const yearInput = document.getElementById("publishYear");
 
-// -------------------------------
-// FONT CHANGE
-// -------------------------------
-fontSelect.onchange = () => {
-  if (selected) {
-    selected.style.fontFamily = fontSelect.value;
+const backToWriterBtn = document.getElementById("backToWriterBtn");
+const previewExportBtn = document.getElementById("previewExportBtn");
+const downloadExportBtn = document.getElementById("downloadExportBtn");
+const finalPublishBtn = document.getElementById("finalPublishBtn");
+
+const statusEl = document.getElementById("publishStatus");
+
+// INIT
+function init() {
+  const book = getCurrentBook();
+  if (!book) {
+    metaContainer.innerHTML = `<div class="publish-meta-line">No active book selected.</div>`;
+    statusEl.textContent = "No active book. Go back to the library.";
+    return;
   }
-};
 
-// -------------------------------
-// IMAGE UPLOAD HANDLER
-// -------------------------------
-function handleImageUpload(input, xPos) {
-  const file = input.files[0];
+  // Render meta
+  metaContainer.innerHTML = `
+    <div class="publish-meta-title">${book.title || "Untitled Book"}</div>
+    ${book.subtitle ? `<div class="publish-meta-subtitle">${book.subtitle}</div>` : ""}
+    <div class="publish-meta-line">Author: ${book.author || "Unknown"}</div>
+    ${book.genre ? `<div class="publish-meta-line">Genre: ${book.genre}</div>` : ""}
+    ${book.audience ? `<div class="publish-meta-line">Audience: ${book.audience}</div>` : ""}
+  `;
+
+  // Load cover
+  if (book.coverDataUrl) {
+    setCoverPreview(book.coverDataUrl);
+  }
+
+  // Load notes & settings
+  notesInput.value = book.publishNotes || "";
+  trimSizeSelect.value = book.publishTrimSize || "6x9";
+  interiorSelect.value = book.publishInterior || "b&w";
+  paperSelect.value = book.publishPaper || "cream";
+  imprintInput.value = book.publishImprint || "";
+  isbnInput.value = book.publishISBN || "";
+  yearInput.value = book.publishYear || new Date().getFullYear();
+}
+
+// COVER
+function setCoverPreview(dataUrl) {
+  coverPreview.innerHTML = `<img src="${dataUrl}" alt="Cover preview">`;
+}
+
+coverInput.onchange = e => {
+  const file = e.target.files[0];
   if (!file) return;
-
-  const img = document.createElement("img");
-  img.className = "draggable";
-  img.style.position = "absolute";
-  img.style.left = xPos + "px";
-  img.style.top = "20px";
-  img.style.width = "350px";
 
   const reader = new FileReader();
   reader.onload = () => {
-    img.src = reader.result;
-    canvas.appendChild(img);
-
-    makeSelectable(img);
-    makeDraggable(img);
-    makeResizable(img);
+    const dataUrl = reader.result;
+    setCoverPreview(dataUrl);
+    updateCurrentBook(b => {
+      b.coverDataUrl = dataUrl;
+    });
+    statusEl.textContent = "Cover updated.";
   };
-
   reader.readAsDataURL(file);
+};
+
+removeCoverBtn.onclick = () => {
+  coverPreview.innerHTML = `<span class="cover-placeholder-text">No cover uploaded</span>`;
+  updateCurrentBook(b => {
+    delete b.coverDataUrl;
+  });
+  statusEl.textContent = "Cover removed.";
+};
+
+// NOTES & SETTINGS SAVE
+notesInput.oninput = () => {
+  updateCurrentBook(b => {
+    b.publishNotes = notesInput.value;
+  });
+};
+
+trimSizeSelect.onchange = () => {
+  updateCurrentBook(b => {
+    b.publishTrimSize = trimSizeSelect.value;
+  });
+};
+
+interiorSelect.onchange = () => {
+  updateCurrentBook(b => {
+    b.publishInterior = interiorSelect.value;
+  });
+};
+
+paperSelect.onchange = () => {
+  updateCurrentBook(b => {
+    b.publishPaper = paperSelect.value;
+  });
+};
+
+imprintInput.oninput = () => {
+  updateCurrentBook(b => {
+    b.publishImprint = imprintInput.value;
+  });
+};
+
+isbnInput.oninput = () => {
+  updateCurrentBook(b => {
+    b.publishISBN = isbnInput.value;
+  });
+};
+
+yearInput.oninput = () => {
+  updateCurrentBook(b => {
+    b.publishYear = yearInput.value;
+  });
+};
+
+// NAV
+backToWriterBtn.onclick = () => {
+  window.location.href = "writer.html";
+};
+
+// EXPORT FORMAT
+function getSelectedExportFormat() {
+  const checked = document.querySelector('input[name="exportFormat"]:checked');
+  return checked ? checked.value : "pdf-print";
 }
 
-frontInput.onchange = () => handleImageUpload(frontInput, 20);
-backInput.onchange = () => handleImageUpload(backInput, 460);
-
-// -------------------------------
-// DELETE SELECTED ELEMENT
-// -------------------------------
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Delete" && selected) {
-    selected.remove();
-    selected = null;
-  }
-});
-
-// -------------------------------
-// EXPORT COVER (PNG)
-// -------------------------------
-exportCoverBtn.onclick = async () => {
-  const exportCanvas = await html2canvas(canvas, {
-    backgroundColor: "#ffffff",
-    scale: 2
-  });
-
-  const link = document.createElement("a");
-  link.download = "book-cover.png";
-  link.href = exportCanvas.toDataURL("image/png");
-  link.click();
+// EXPORT ACTIONS (STUBS WITH CLEAR HOOKS)
+previewExportBtn.onclick = () => {
+  const format = getSelectedExportFormat();
+  statusEl.textContent = `Generating preview for ${format.toUpperCase()}... (stub)`;
+  // TODO: hook into real preview engine
 };
+
+downloadExportBtn.onclick = () => {
+  const format = getSelectedExportFormat();
+  statusEl.textContent = `Preparing ${format.toUpperCase()} download... (stub)`;
+  // TODO: generate file and trigger download
+};
+
+finalPublishBtn.onclick = () => {
+  updateCurrentBook(b => {
+    b.publishedAt = Date.now();
+  });
+  statusEl.textContent = "Book marked as published. (You can now distribute your exported file.)";
+};
+
+// RUN
+init();
