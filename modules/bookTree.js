@@ -1,55 +1,44 @@
+import bookIdentity from "./bookIdentity.js";
+import frontMatter from "./frontMatter.js";
+import backMatter from "./backMatter.js";
+import pageLayout from "./pageLayout.js";
+import chapterIndex from "./chapterIndex.js";
+
 export default function bookTree(book) {
   return `
-    <div class="tree-section">
-      <div class="tree-title">Identity</div>
-      <div class="tree-item" data-id="titlePage">Title Page</div>
-      <div class="tree-item" data-id="copyright">Copyright</div>
-      <div class="tree-item" data-id="dedication">Dedication</div>
-      <div class="tree-item" data-id="acknowledgments">Acknowledgments</div>
-      <div class="tree-item" data-id="foreword">Foreword</div>
-      <div class="tree-item" data-id="preface">Preface</div>
+    <div class="tree-group" data-group="identity">
+      <div class="tree-header">Identity</div>
+      <div class="tree-body">
+        ${bookIdentity()}
+      </div>
     </div>
 
-    <div class="tree-section">
-      <div class="tree-title">Parts & Chapters</div>
-
-      ${book.parts
-        .map(
-          part => `
-        <div class="tree-part" data-id="${part.id}">
-          <div class="tree-part-label">${part.label}</div>
-
-          ${part.chapters
-            .map(
-              ch => `
-            <div class="tree-item chapter" data-id="${ch.id}">
-              ${ch.label}
-            </div>
-          `
-            )
-            .join("")}
-
-          <div class="tree-add-chapter" data-part="${part.id}">
-            + Add Chapter
-          </div>
-        </div>
-      `
-        )
-        .join("")}
-
-      <div class="tree-add-part">+ Add Part</div>
+    <div class="tree-group" data-group="frontMatter">
+      <div class="tree-header">Front Matter</div>
+      <div class="tree-body">
+        ${frontMatter()}
+      </div>
     </div>
 
-    <div class="tree-section">
-      <div class="tree-title">Back Matter</div>
-      <div class="tree-item" data-id="aboutAuthor">About the Author</div>
-      <div class="tree-item" data-id="extras">Extras / Notes</div>
-      <div class="tree-item" data-id="bibliography">Bibliography</div>
+    <div class="tree-group" data-group="parts">
+      <div class="tree-header">Parts & Chapters</div>
+      <div class="tree-body">
+        ${chapterIndex(book.parts)}
+      </div>
     </div>
 
-    <div class="tree-section">
-      <div class="tree-title">Page Layout</div>
-      <div class="tree-item" data-id="layout">Layout Settings</div>
+    <div class="tree-group" data-group="backMatter">
+      <div class="tree-header">Back Matter</div>
+      <div class="tree-body">
+        ${backMatter()}
+      </div>
+    </div>
+
+    <div class="tree-group" data-group="layout">
+      <div class="tree-header">Page Layout</div>
+      <div class="tree-body">
+        ${pageLayout()}
+      </div>
     </div>
   `;
 }
