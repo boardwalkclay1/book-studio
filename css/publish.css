@@ -1,0 +1,58 @@
+:root {
+  --blue: #0b3c73;
+  --red-light: #ff6b6b;
+  --white: #ffffff;
+  --radius: 14px;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f5f7fb;
+  display: flex;
+  height: 100vh;
+}
+
+#publishApp {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.panel {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+#canvasArea {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #d6d9e5;
+  position: relative;
+  overflow: hidden;
+}
+
+.draggable {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+}
+
+.font-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+}
