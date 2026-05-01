@@ -1,9 +1,5 @@
 // js/writer.js
-// Entry point for the Writer page. Imports modules from ../modules
-
-import bookTree from '../modules/bookTree.js';
-import initEditor from '../modules/editor.js';
-import initToolbar from '../modules/toolbar.js';
+// Entry point for Writer page. Assumes this file lives in /js and modules (optional) live in /modules
 
 // -------------------- Storage helpers --------------------
 function getBooks() {
@@ -59,6 +55,15 @@ const publishBtn = document.getElementById('publishBtn');
 const exportBtn = document.getElementById('exportBtn');
 const toolsBtn = document.getElementById('toolsBtn');
 
+// Optional module hooks (if you add modules later)
+let initEditor = null;
+let initToolbar = null;
+try {
+  // dynamic import if modules exist
+  import('../modules/editor.js').then(m => { initEditor = m.default || m.initEditor; }).catch(()=>{});
+  import('../modules/toolbar.js').then(m => { initToolbar = m.default || m.initToolbar; }).catch(()=>{});
+} catch (e) { /* ignore if modules not present */ }
+
 // -------------------- Book structure helpers --------------------
 function ensureBookStructure(book) {
   if (!book.structure) {
@@ -77,18 +82,19 @@ function ensureBookStructure(book) {
 }
 
 function findPageById(structure, id) {
+  if (!structure) return null;
   let p = structure.frontMatter.find(x => x.id === id);
   if (p) return p;
   for (const part of structure.parts) {
     if (part.id === id) return part;
-    const ch = part.chapters.find(c => c.id === id);
+    const ch = (part.chapters || []).find(c => c.id === id);
     if (ch) return ch;
   }
   p = structure.backMatter.find(x => x.id === id);
   return p || null;
 }
 
-// -------------------- Rendering sidebar --------------------
+// -------------------- Sidebar rendering --------------------
 function renderSidebar() {
   const book = getCurrentBook();
   if (!book) {
@@ -96,22 +102,50 @@ function renderSidebar() {
     return;
   }
   ensureBookStructure(book);
-  leftSidebar.innerHTML = bookTree(book.structure);
+  leftSidebar.innerHTML = buildTreeHtml(book.structure);
   attachSidebarEvents();
 }
 
+function buildTreeHtml(structure) {
+  // simple HTML tree: front matter, parts with chapters, back matter
+  let html = `<div class="tree-block"><h4>Front Matter</h4><ul>`;
+  structure.frontMatter.forEach(p => {
+    html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`;
+  });
+  html += `</ul></div>`;
+
+  html += `<div class="tree-block"><h4>Parts</h4>`;
+  html += `<button class="tree-add-part">+ Add Part</button>`;
+  html += `<div class="parts">`;
+  structure.parts.forEach(part => {
+    html += `<div class="part" data-id="${part.id}"><div class="part-label" data-id="${part.id}">${escapeHtml(part.label)}</div>`;
+    html += `<button class="tree-add-chapter" data-part="${part.id}">+ Chapter</button>`;
+    html += `<ul>`;
+    (part.chapters || []).forEach(ch => {
+      html += `<li data-id="${ch.id}" class="tree-node">${escapeHtml(ch.label)}</li>`;
+    });
+    html += `</ul></div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div class="tree-block"><h4>Back Matter</h4><ul>`;
+  structure.backMatter.forEach(p => {
+    html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`;
+  });
+  html += `</ul></div>`;
+
+  return html;
+}
+
 function attachSidebarEvents() {
-  // clickable nodes have data-id attributes from bookTree module
-  leftSidebar.querySelectorAll('[data-id]').forEach(el => {
+  leftSidebar.querySelectorAll('.tree-node').forEach(el => {
     el.onclick = () => loadPage(el.dataset.id);
   });
 
-  // add part buttons
   leftSidebar.querySelectorAll('.tree-add-part').forEach(btn => {
     btn.onclick = addPart;
   });
 
-  // add chapter buttons (buttons include data-part attribute)
   leftSidebar.querySelectorAll('.tree-add-chapter').forEach(btn => {
     btn.onclick = () => addChapter(btn.dataset.part);
   });
@@ -123,7 +157,7 @@ let autoSaveTimer = null;
 
 function loadPage(id) {
   const book = getCurrentBook();
-  if (!book) return;
+  if (!book || !book.structure) return;
   const page = findPageById(book.structure, id);
   if (!page) return;
   currentPage = page;
@@ -132,10 +166,7 @@ function loadPage(id) {
   subtitleInput.value = page.subtitle || '';
   editorContent.innerHTML = page.content || '';
 
-  // If TOC page, regenerate
-  if (page.type === 'toc') {
-    generateTOC();
-  }
+  if (page.type === 'toc') generateTOC();
 
   updateWordStats();
 }
@@ -145,7 +176,7 @@ function persistCurrentPage() {
   currentPage.label = titleInput.value;
   currentPage.subtitle = subtitleInput.value;
   currentPage.content = editorContent.innerHTML;
-  updateCurrentBook(b => { b.structure = b.structure; }); // triggers save
+  updateCurrentBook(b => { b.structure = b.structure; });
   saveIndicator.textContent = 'Saved';
   updateWordStats();
 }
@@ -182,7 +213,7 @@ function addChapter(partId) {
   if (!book) return;
   const part = book.structure.parts.find(p => p.id === partId);
   if (!part) return;
-  const num = part.chapters.length + 1;
+  const num = (part.chapters || []).length + 1;
   const newChapter = {
     id: `${partId}-ch${num}`,
     type: 'chapter',
@@ -190,6 +221,7 @@ function addChapter(partId) {
     subtitle: '',
     content: ''
   };
+  part.chapters = part.chapters || [];
   part.chapters.push(newChapter);
   updateCurrentBook(b => { b.structure = book.structure; });
   renderSidebar();
@@ -203,7 +235,7 @@ function generateTOC() {
   let html = '';
   book.structure.parts.forEach(part => {
     html += `<h3>${escapeHtml(part.label)}</h3>`;
-    part.chapters.forEach(ch => {
+    (part.chapters || []).forEach(ch => {
       html += `<p>${escapeHtml(ch.label)}${ch.subtitle ? ' — ' + escapeHtml(ch.subtitle) : ''}</p>`;
     });
   });
@@ -228,13 +260,12 @@ function updateWordStats() {
   }
   let totalWords = 0;
   let totalChapters = 0;
-  book.structure.parts.forEach(part => {
-    part.chapters.forEach(ch => {
+  (book.structure.parts || []).forEach(part => {
+    (part.chapters || []).forEach(ch => {
       totalChapters++;
       totalWords += countWordsFromHtml(ch.content || '');
     });
   });
-  // include current page if it's not in chapters yet
   if (currentPage && currentPage.type !== 'chapter') {
     totalWords += countWordsFromHtml(currentPage.content || '');
   }
@@ -256,11 +287,9 @@ lineSpaceSelect.onchange = applyEditorSettings;
 letterSpaceSelect.oninput = applyEditorSettings;
 
 insertSceneBreak.onclick = () => {
-  // insert a centered scene break marker
   const marker = document.createElement('div');
   marker.className = 'scene-break';
   marker.innerHTML = '<hr style="opacity:.25"><p style="text-align:center;opacity:.6">***</p><hr style="opacity:.25">';
-  // insert at caret
   insertNodeAtCaret(marker);
   scheduleAutoSave();
 };
@@ -274,7 +303,6 @@ function insertNodeAtCaret(node) {
   const range = sel.getRangeAt(0);
   range.deleteContents();
   range.insertNode(node);
-  // move caret after node
   range.setStartAfter(node);
   range.collapse(true);
   sel.removeAllRanges();
@@ -288,12 +316,8 @@ editorContent.addEventListener('input', () => {
 });
 
 // title/subtitle events
-titleInput.addEventListener('input', () => {
-  scheduleAutoSave();
-});
-subtitleInput.addEventListener('input', () => {
-  scheduleAutoSave();
-});
+titleInput.addEventListener('input', scheduleAutoSave);
+subtitleInput.addEventListener('input', scheduleAutoSave);
 
 // save button
 saveBtn.onclick = () => {
@@ -303,7 +327,6 @@ saveBtn.onclick = () => {
 
 // preview button
 previewBtn.onclick = () => {
-  // simple preview: open a new window with the current page content
   const html = `
     <html><head><title>${escapeHtml(titleInput.value || 'Preview')}</title>
     <style>body{font-family:Inter,system-ui; padding:40px; background:#fff; color:#111}</style>
@@ -320,7 +343,6 @@ previewBtn.onclick = () => {
 
 // publish button
 publishBtn.onclick = () => {
-  // ensure current page saved and navigate to publish page
   persistCurrentPage();
   window.location.href = '../pages/publish.html';
 };
@@ -344,24 +366,6 @@ function escapeHtml(str = '') {
     .replace(/'/g, '&#039;');
 }
 
-// -------------------- Init editor modules (if available) --------------------
-function safeInitEditor(book) {
-  try {
-    initEditor && initEditor(editorContent, { book });
-  } catch (e) {
-    // module not available or failed — continue with built-in editor
-    console.warn('initEditor failed', e);
-  }
-}
-
-function safeInitToolbar() {
-  try {
-    initToolbar && initToolbar(document.getElementById('editorToolbar'));
-  } catch (e) {
-    console.warn('initToolbar failed', e);
-  }
-}
-
 // -------------------- Initialization --------------------
 function init() {
   const book = getCurrentBook();
@@ -377,11 +381,12 @@ function init() {
   }
 
   ensureBookStructure(book);
-  safeInitEditor(book);
-  safeInitToolbar();
+  // initialize optional modules if available
+  try { if (typeof initEditor === 'function') initEditor(editorContent, { book }); } catch(e){console.warn(e);}
+  try { if (typeof initToolbar === 'function') initToolbar(document.getElementById('editorToolbar')); } catch(e){console.warn(e);}
+
   renderSidebar();
 
-  // default load: first front matter title page or first chapter
   const firstFront = book.structure.frontMatter[0];
   if (firstFront) loadPage(firstFront.id);
   else if (book.structure.parts.length && book.structure.parts[0].chapters.length) {
@@ -391,7 +396,6 @@ function init() {
   applyEditorSettings();
   updateWordStats();
 
-  // autosave every 30s as a safety net
   setInterval(() => persistCurrentPage(), 30000);
 }
 
