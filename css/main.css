@@ -1,18 +1,18 @@
 /* css/main.css for pages/writer.html
-   - three-column layout: left tree, center editor, right inspector
-   - gold "paper" panels with black text
-   - background image loaded from HTML (img/bp-back.jpg) sits behind UI
-   - publish-logo.jpg used as favicon/social preview (set in HTML)
+   - Darker gold theme for page and back blocks
+   - Background image remains loaded from HTML (.bg-img)
+   - Replace existing file with this content
 */
 
 :root{
-  --paper-gold: #f7e6b0;        /* paper color */
-  --paper-gold-strong: #f3d98a;
-  --accent-gold: #d4a83a;       /* UI accent */
+  --paper-gold-dark: #e6c97a;      /* darker paper base */
+  --paper-gold: #f0d58f;           /* mid gold */
+  --paper-gold-light: #f9e9b8;     /* highlight */
+  --accent-gold: #c89b2a;          /* UI accent / buttons */
   --text-black: #0b0b0b;
-  --panel-border: rgba(0,0,0,0.08);
+  --panel-border: rgba(0,0,0,0.10);
   --ui-radius: 12px;
-  --shadow-strong: 0 18px 40px rgba(0,0,0,0.45);
+  --shadow-strong: 0 18px 40px rgba(0,0,0,0.55);
   --max-width: 1400px;
 }
 
@@ -22,7 +22,7 @@ html, body {
   height:100%;
   margin:0;
   padding:0;
-  background: #000; /* black background behind everything */
+  background: #0b0b0b; /* keep deep black behind everything for contrast */
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   color: var(--text-black);
   -webkit-font-smoothing:antialiased;
@@ -38,8 +38,8 @@ html, body {
   object-position: center center;
   z-index: -999;            /* behind everything */
   pointer-events: none;
-  opacity: 0.9;
-  filter: saturate(0.9) contrast(0.9) brightness(0.6);
+  opacity: 0.88;
+  filter: saturate(0.95) contrast(0.92) brightness(0.58);
 }
 
 /* subtle overlay above the image to keep contrast */
@@ -48,7 +48,7 @@ html, body {
   inset: 0;
   z-index: -998;
   pointer-events: none;
-  background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55));
+  background: linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.62));
 }
 
 /* Brand button */
@@ -81,9 +81,9 @@ html, body {
   min-height: calc(100vh - 72px);
 }
 
-/* Panels: gold paper look */
+/* Panels: darker gold paper look */
 .panel {
-  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-strong));
+  background: linear-gradient(180deg, var(--paper-gold-dark), var(--paper-gold));
   border-radius: var(--ui-radius);
   padding: 16px;
   border: 1px solid var(--panel-border);
@@ -92,23 +92,25 @@ html, body {
   font-weight: 600;
 }
 
+/* Make center editor panel slightly lighter to read content */
+.panel-center {
+  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-light));
+}
+
 /* Left sidebar */
 .panel-left { overflow:auto; min-height:480px; }
-
-/* Center editor */
-.panel-center { display:flex; flex-direction:column; gap:12px; min-height:480px; }
 
 /* Right inspector */
 .panel-right { min-height:480px; }
 
-/* Header inputs: black text on pale gold input */
+/* Header inputs: darker gold inputs with black text */
 .panel-header { display:flex; gap:12px; align-items:center; }
 .chapter-title-input {
   flex:1;
   padding:10px 12px;
   border-radius:10px;
-  border:1px solid rgba(0,0,0,0.06);
-  background: rgba(0,0,0,0.02);
+  border:1px solid rgba(0,0,0,0.08);
+  background: rgba(0,0,0,0.03);
   color: var(--text-black);
   font-size:18px;
 }
@@ -116,15 +118,15 @@ html, body {
   width:320px;
   padding:10px 12px;
   border-radius:10px;
-  border:1px solid rgba(0,0,0,0.06);
-  background: rgba(0,0,0,0.02);
+  border:1px solid rgba(0,0,0,0.08);
+  background: rgba(0,0,0,0.03);
   color: var(--text-black);
 }
 
 /* Toolbar */
 .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:6px 0; }
 .tool-btn {
-  background: var(--paper-gold-strong);
+  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-dark));
   border: 1px solid rgba(0,0,0,0.06);
   color: var(--text-black);
   padding:6px 8px;
@@ -133,21 +135,21 @@ html, body {
   font-weight:700;
 }
 .tool-select, .tool-range {
-  background: rgba(0,0,0,0.02);
+  background: rgba(0,0,0,0.03);
   color: var(--text-black);
   border:1px solid rgba(0,0,0,0.06);
   padding:6px 8px;
   border-radius:8px;
 }
 
-/* Editor: paper surface with black text */
+/* Editor: paper surface with black text (slightly darker gold edge) */
 .editor {
   flex:1;
   min-height:420px;
-  padding:22px;
+  padding:24px;
   border-radius:10px;
   border:1px solid rgba(0,0,0,0.06);
-  background: linear-gradient(180deg, #fffaf0, #fff6e6); /* lighter paper inside */
+  background: linear-gradient(180deg, #fff7e8, #fff3dd); /* readable inner paper */
   color: var(--text-black);
   overflow:auto;
   outline:none;
@@ -159,7 +161,7 @@ html, body {
 /* placeholder text color */
 .editor:empty::before { content: attr(data-placeholder); color: rgba(0,0,0,0.28); }
 
-/* Stats: small gold blocks behind labels */
+/* Stats: darker gold blocks behind labels */
 .stats-panel {
   display:flex;
   justify-content:space-between;
@@ -167,11 +169,11 @@ html, body {
   gap:12px;
   padding:8px 12px;
   border-radius:8px;
-  background: rgba(212,175,55,0.12); /* faint gold block */
+  background: linear-gradient(180deg, rgba(200,150,40,0.14), rgba(200,150,40,0.10));
   color: var(--text-black);
 }
 
-/* Tree: gold blocks behind node labels */
+/* Tree: darker gold blocks behind node labels */
 .tree-block { margin-bottom:14px; }
 .tree-block h4 { margin:0 0 8px 0; font-size:13px; color:var(--text-black); font-weight:800; }
 .tree-node {
@@ -179,17 +181,18 @@ html, body {
   border-radius:8px;
   cursor:pointer;
   color: var(--text-black);
-  background: rgba(212,175,55,0.08); /* gold block behind each node */
+  background: linear-gradient(180deg, rgba(200,150,40,0.12), rgba(200,150,40,0.06));
   margin-bottom:6px;
+  border: 1px solid rgba(0,0,0,0.04);
 }
-.tree-node:hover { background: rgba(212,175,55,0.16); }
+.tree-node:hover { background: linear-gradient(180deg, rgba(200,150,40,0.20), rgba(200,150,40,0.10)); }
 
 /* Add buttons */
 .tree-add-part, .tree-add-chapter {
   margin:8px 0;
   padding:6px 8px;
   border-radius:8px;
-  background: var(--paper-gold-strong);
+  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-dark));
   border:none;
   color: var(--text-black);
   cursor:pointer;
@@ -199,9 +202,9 @@ html, body {
 /* Inspector */
 .inspector-heading { margin:0 0 12px 0; color:var(--text-black); font-size:16px; }
 .inspector-row { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-.inspector-row label { font-size:12px; color:rgba(0,0,0,0.7); font-weight:700; }
+.inspector-row label { font-size:12px; color:rgba(0,0,0,0.75); font-weight:700; }
 .inspector-value {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.92);
   padding:8px 10px;
   border-radius:8px;
   color:var(--text-black);
@@ -217,7 +220,7 @@ html, body {
   padding:8px 10px;
   border-radius:8px;
   border:none;
-  background: linear-gradient(180deg, var(--paper-gold-strong), var(--accent-gold));
+  background: linear-gradient(180deg, var(--paper-gold-dark), var(--accent-gold));
   color:#111;
   cursor:pointer;
   font-weight:700;
