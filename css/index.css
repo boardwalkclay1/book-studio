@@ -1,10 +1,9 @@
 /* css/index.css
-   Single-file styles for Library page
+   Self-contained styles for the Library page.
    - Gold cursive headings and accents
-   - Decorative feathers
-   - No fullscreen background image logic
-   - Responsive and accessible
-   - Place at css/index.css (replace existing)
+   - Decorative feather layer
+   - No background-image logic
+   - Accessible and responsive
 */
 
 /* Fonts */
@@ -18,7 +17,6 @@
   --dark-bg: #000;
   --trans-black: rgba(0,0,0,0.48);
   --panel-border: rgba(212,175,55,0.08);
-  --glass-white: rgba(255,255,255,0.06);
   --shadow-strong: 0 20px 60px rgba(0,0,0,0.6);
   --ui-radius: 12px;
   --max-width: 1200px;
@@ -34,19 +32,7 @@ html, body {
   background: var(--dark-bg);
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   color: var(--gold);
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Layout container */
-#libraryApp {
-  position: relative;
-  z-index: 10;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 96px 28px 60px;
-  box-sizing: border-box;
 }
 
 /* Feathers decorative layer */
@@ -74,13 +60,23 @@ html, body {
   width: 56px;
   height: 56px;
   border-radius: 8px;
-  background: url('../img/publish-logo.jpg') center/cover no-repeat;
+  background: url('img/publish-logo.jpg') center/cover no-repeat;
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 6px 20px rgba(0,0,0,0.6);
   z-index: 20;
   cursor: pointer;
 }
 .brand-btn:focus { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Main container */
+#libraryApp {
+  position: relative;
+  z-index: 10;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 96px 28px 60px;
+  box-sizing: border-box;
+}
 
 /* HERO */
 .library-hero {
@@ -102,7 +98,6 @@ html, body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
   margin: 0;
   text-align: center;
-  letter-spacing: 0.02em;
 }
 .library-tagline {
   font-family: "Dancing Script", serif;
