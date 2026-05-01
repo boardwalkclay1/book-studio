@@ -8,36 +8,32 @@
 </head>
 <body>
 
-  <!-- Top-left logo -->
+  <!-- small clickable logo (no fullscreen image) -->
   <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
     <img src="../img/publish-logo.JPG" alt="Boardwalk Book Studio" id="brandLogo" />
   </button>
 
   <div id="app" class="writer-layout">
 
-    <!-- LEFT SIDEBAR -->
-    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure">
-      <!-- Sidebar content is rendered by js/writer.js -->
-    </aside>
+    <!-- LEFT SIDEBAR (rendered by js/writer.js) -->
+    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
 
     <!-- RIGHT: EDITOR -->
     <main class="panel panel-right" role="main" aria-label="Editor">
 
       <!-- PAGE TITLE + SUBTITLE -->
-      <div class="panel-header" role="region" aria-label="Page title and subtitle">
+      <div class="panel-header">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
         <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
       </div>
 
       <!-- TOOLBAR -->
-      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar">
-        <!-- Optional toolbar buttons injected by JS -->
-      </div>
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar"></div>
 
       <!-- EXTRA CONTROLS -->
-      <div class="toolbar-row" role="region" aria-label="Editor controls">
+      <div class="toolbar-row">
         <label for="fontSizeSelect">Font size</label>
-        <select id="fontSizeSelect" aria-label="Font size">
+        <select id="fontSizeSelect">
           <option value="14">Small</option>
           <option value="16" selected>Normal</option>
           <option value="18">Large</option>
@@ -45,7 +41,7 @@
         </select>
 
         <label for="lineSpaceSelect">Line spacing</label>
-        <select id="lineSpaceSelect" aria-label="Line spacing">
+        <select id="lineSpaceSelect">
           <option value="1.2">1.2</option>
           <option value="1.5" selected>1.5</option>
           <option value="1.8">1.8</option>
@@ -53,9 +49,9 @@
         </select>
 
         <label for="letterSpaceSelect">Letter spacing</label>
-        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" aria-label="Letter spacing" />
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" />
 
-        <button id="insertSceneBreak" class="btn btn-gold" type="button" aria-label="Insert scene break">Scene Break</button>
+        <button id="insertSceneBreak" class="btn btn-gold" type="button">Scene Break</button>
       </div>
 
       <!-- EDITOR -->
@@ -75,30 +71,16 @@
 
     <!-- CONTROL DOCK -->
     <div id="controlDock" class="control-dock" role="toolbar" aria-label="Document actions">
-      <button id="saveBtn" class="dock-btn" type="button" aria-label="Save">💾 Save</button>
-      <button id="previewBtn" class="dock-btn" type="button" aria-label="Preview">👁️ Preview</button>
-      <button id="publishBtn" class="dock-btn" type="button" aria-label="Publish">🚀 Publish</button>
-      <button id="exportBtn" class="dock-btn" type="button" aria-label="Export">📦 Export</button>
-      <button id="toolsBtn" class="dock-btn" type="button" aria-label="Tools">⚙️ Tools</button>
+      <button id="saveBtn" class="dock-btn" type="button">💾 Save</button>
+      <button id="previewBtn" class="dock-btn" type="button">👁️ Preview</button>
+      <button id="publishBtn" class="dock-btn" type="button">🚀 Publish</button>
+      <button id="exportBtn" class="dock-btn" type="button">📦 Export</button>
+      <button id="toolsBtn" class="dock-btn" type="button">⚙️ Tools</button>
     </div>
 
   </div>
 
+  <!-- load page logic last so DOM is ready; writer.js is the single source of truth for behavior -->
   <script type="module" src="../js/writer.js"></script>
-  <script>
-    // small runtime fixes to ensure the page works even if writer.js hasn't rendered yet
-    document.getElementById('brandBtn').addEventListener('click', () => {
-      window.location.href = '../index.html';
-    });
-
-    // ensure editor placeholder behavior on focus/blur
-    const editor = document.getElementById('editorContent');
-    editor.addEventListener('focus', () => {
-      if (editor.textContent.trim() === 'Start writing your story...') editor.textContent = '';
-    });
-    editor.addEventListener('blur', () => {
-      if (editor.textContent.trim() === '') editor.textContent = 'Start writing your story...';
-    });
-  </script>
 </body>
 </html>
