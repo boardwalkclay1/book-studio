@@ -4,42 +4,43 @@
   <meta charset="UTF-8">
   <title>Boardwalk Book Studio — Writer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="../css/main.css">
 </head>
 <body>
 
   <!-- Logo -->
-  <img src="img/publish-logo.JPG" id="brandLogo"
-       onclick="window.location.href='index.html'">
+  <img src="../img/publish-logo.JPG" id="brandLogo"
+       alt="Boardwalk Book Studio"
+       onclick="window.location.href='../index.html'">
 
-  <div id="app">
+  <div id="app" class="writer-layout">
 
     <!-- LEFT SIDEBAR (BUILT BY writer.js) -->
-    <section class="panel panel-left" id="leftSidebar"></section>
+    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
 
     <!-- RIGHT: EDITOR -->
-    <section class="panel panel-right">
+    <section class="panel panel-right" role="main">
 
       <!-- PAGE TITLE + SUBTITLE -->
       <div class="panel-header">
-        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title">
-        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title">
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle">
       </div>
 
       <!-- TOOLBAR -->
-      <div id="editorToolbar" class="toolbar"></div>
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar"></div>
 
       <!-- EXTRA CONTROLS -->
       <div class="toolbar-row">
-        <label>Font size</label>
+        <label for="fontSizeSelect">Font size</label>
         <select id="fontSizeSelect">
-          <option value="2">Small</option>
-          <option value="3" selected>Normal</option>
-          <option value="5">Large</option>
-          <option value="7">Huge</option>
+          <option value="14">Small</option>
+          <option value="16" selected>Normal</option>
+          <option value="18">Large</option>
+          <option value="22">Huge</option>
         </select>
 
-        <label>Line spacing</label>
+        <label for="lineSpaceSelect">Line spacing</label>
         <select id="lineSpaceSelect">
           <option value="1.2">1.2</option>
           <option value="1.5" selected>1.5</option>
@@ -47,39 +48,38 @@
           <option value="2.0">2.0</option>
         </select>
 
-        <label>Letter spacing</label>
-        <input type="range" id="letterSpaceSelect" min="0" max="10" value="0">
+        <label for="letterSpaceSelect">Letter spacing</label>
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0">
 
         <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
       </div>
 
       <!-- EDITOR -->
-      <div id="editorContent" class="editor" contenteditable="true">
+      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor">
         Start writing your story...
       </div>
 
       <!-- STATS -->
       <div class="stats-panel">
-        <div id="wordStats"></div>
-        <div id="saveIndicator">Saving…</div>
+        <div id="wordStats" aria-live="polite">Words: 0 • Chapters: 0</div>
+        <div id="saveIndicator" aria-live="polite">Saved</div>
       </div>
 
-      <div id="nextStepGuide" class="next-step-guide"></div>
+      <div id="nextStepGuide" class="next-step-guide" aria-live="polite"></div>
 
     </section>
 
     <!-- CONTROL DOCK -->
-    <div id="controlDock">
+    <div id="controlDock" class="control-dock" role="toolbar" aria-label="Document actions">
       <button id="saveBtn" class="dock-btn">💾 Save</button>
       <button id="previewBtn" class="dock-btn">👁️ Preview</button>
-      <button id="publishBtn" class="dock-btn"
-              onclick="window.location.href='publish.html'">🚀 Publish</button>
+      <button id="publishBtn" class="dock-btn">🚀 Publish</button>
       <button id="exportBtn" class="dock-btn">📦 Export</button>
       <button id="toolsBtn" class="dock-btn">⚙️ Tools</button>
     </div>
 
   </div>
 
-  <script src="js/writer.js" type="module"></script>
+  <script src="../js/writer.js" type="module"></script>
 </body>
 </html>
