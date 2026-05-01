@@ -9,11 +9,12 @@ const authorInput = document.getElementById("newBookAuthor");
 const genreInput = document.getElementById("newBookGenre");
 const audienceInput = document.getElementById("newBookAudience");
 const descInput = document.getElementById("newBookDescription");
+const coverInput = document.getElementById("newBookCover");
 
 const createBookConfirm = document.getElementById("createBookConfirm");
 const closeModal = document.getElementById("closeModal");
 
-// HELPERS
+// STORAGE HELPERS
 function getBooks() {
   return JSON.parse(localStorage.getItem("books") || "[]");
 }
@@ -24,7 +25,7 @@ function saveBooks(books) {
 
 function openBook(id) {
   localStorage.setItem("currentBook", id);
-  window.location.href = "writer.html";
+  window.location.href = "pages/writer.html";
 }
 
 // RENDER BOOK GRID
@@ -48,20 +49,22 @@ function loadBooks() {
         
         <div class="book-cover">
           ${
-            b.coverDataUrl
-              ? `<img src="${b.coverDataUrl}" alt="Cover">`
+            b.cover
+              ? `<img src="${b.cover}" alt="Cover">`
               : `<div class="cover-placeholder">No Cover</div>`
           }
         </div>
 
         <div class="book-info">
           <div class="book-title">${b.title}</div>
-          ${
-            b.subtitle
-              ? `<div class="book-subtitle">${b.subtitle}</div>`
-              : ""
-          }
+          ${b.subtitle ? `<div class="book-subtitle">${b.subtitle}</div>` : ""}
           <div class="book-author">by ${b.author || "Unknown"}</div>
+        </div>
+
+        <div class="book-actions">
+          <button class="book-open">Open</button>
+          <button class="book-edit">Edit</button>
+          <button class="book-delete">Delete</button>
         </div>
 
       </div>
@@ -69,9 +72,61 @@ function loadBooks() {
     )
     .join("");
 
-  document.querySelectorAll(".book-card").forEach(card => {
-    card.onclick = () => openBook(card.dataset.id);
+  document.querySelectorAll(".book-open").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      openBook(id);
+    };
   });
+
+  document.querySelectorAll(".book-delete").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      deleteBook(id);
+    };
+  });
+
+  document.querySelectorAll(".book-edit").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      editBook(id);
+    };
+  });
+}
+
+// DELETE BOOK
+function deleteBook(id) {
+  const books = getBooks().filter(b => b.id !== id);
+  saveBooks(books);
+  loadBooks();
+}
+
+// EDIT BOOK (opens modal pre-filled)
+function editBook(id) {
+  const book = getBooks().find(b => b.id === id);
+  if (!book) return;
+
+  titleInput.value = book.title;
+  subtitleInput.value = book.subtitle;
+  authorInput.value = book.author;
+  genreInput.value = book.genre;
+  audienceInput.value = book.audience;
+  descInput.value = book.description;
+
+  newBookModal.classList.remove("hidden");
+
+  createBookConfirm.onclick = () => {
+    book.title = titleInput.value.trim();
+    book.subtitle = subtitleInput.value.trim();
+    book.author = authorInput.value.trim();
+    book.genre = genreInput.value.trim();
+    book.audience = audienceInput.value.trim();
+    book.description = descInput.value.trim();
+
+    saveBooks(getBooks());
+    newBookModal.classList.add("hidden");
+    loadBooks();
+  };
 }
 
 // SHOW MODAL
@@ -89,16 +144,31 @@ createBookConfirm.onclick = () => {
   const title = titleInput.value.trim();
   if (!title) return alert("Book needs a title.");
 
+  const file = coverInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      saveNewBook(reader.result);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveNewBook(null);
+  }
+};
+
+function saveNewBook(coverData) {
   const newBook = {
     id: "book-" + Date.now(),
-    title,
+    title: titleInput.value.trim(),
     subtitle: subtitleInput.value.trim(),
     author: authorInput.value.trim(),
     genre: genreInput.value.trim(),
     audience: audienceInput.value.trim(),
     description: descInput.value.trim(),
+    cover: coverData,
     created: Date.now(),
-    coverDataUrl: null
+    structure: null
   };
 
   const books = getBooks();
@@ -107,7 +177,7 @@ createBookConfirm.onclick = () => {
 
   newBookModal.classList.add("hidden");
   loadBooks();
-};
+}
 
 // INIT
 loadBooks();
