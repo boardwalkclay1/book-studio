@@ -1,47 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Boardwalk Book Studio — Library</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- GLOBAL + PAGE CSS -->
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
 
-  <!-- FULLSCREEN BACKGROUND -->
+  <!-- FULLSCREEN BACKGROUND (uses the image you specified) -->
   <div class="library-bg" aria-hidden="true"></div>
 
-  <!-- Logo -->
-  <img src="img/publish-logo.JPG" id="brandLogo" alt="Boardwalk Book Studio" onclick="window.location.href='index.html'">
+  <!-- Top-left brand (keeps a small clickable logo) -->
+  <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home"></button>
 
-  <div id="libraryApp">
+  <main id="libraryApp" class="library-app" role="main">
 
-    <!-- HERO HEADER -->
-    <div class="library-hero">
+    <!-- HERO -->
+    <header class="library-hero" role="banner">
       <h1 class="library-title">Boardwalk Book Studio</h1>
       <p class="library-tagline">Create. Write. Publish. Your entire book journey starts here.</p>
-    </div>
+    </header>
 
     <!-- HEADER BAR -->
     <div class="library-header">
       <h2 class="library-subtitle">Your Books</h2>
-      <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
+      <div class="header-actions">
+        <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
+      </div>
     </div>
 
     <!-- BOOK GRID PANEL -->
-    <div class="library-panel">
-      <div id="bookGrid" class="book-grid" role="list"></div>
-    </div>
+    <section class="library-panel" aria-labelledby="library-heading">
+      <div id="bookGrid" class="book-grid" role="list" aria-live="polite"></div>
+    </section>
 
-  </div>
+  </main>
 
   <!-- NEW BOOK MODAL -->
   <div id="newBookModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-content">
-
       <h2 id="modalTitle" class="modal-title">Create New Book</h2>
 
       <label class="field-label">Book Title</label>
@@ -66,14 +65,12 @@
       <input type="file" id="newBookCover" accept="image/*" class="field-input" />
 
       <div class="modal-actions">
-        <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
+        <button id="createBookConfirm" class="btn btn-gold modal-btn">Save</button>
         <button id="closeModal" class="btn modal-btn">Cancel</button>
       </div>
-
     </div>
   </div>
 
-  <!-- JS -->
   <script src="js/index.js" type="module"></script>
 </body>
 </html>
