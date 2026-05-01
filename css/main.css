@@ -1,18 +1,17 @@
 /* css/main.css for pages/writer.html
-   - Darker gold theme for page and back blocks
-   - Background image remains loaded from HTML (.bg-img)
-   - Replace existing file with this content
+   Darker gold theme: bar-gold paper, deeper gold blocks, black text
+   Replace existing css/main.css with this content
 */
 
 :root{
-  --paper-gold-dark: #e6c97a;      /* darker paper base */
-  --paper-gold: #f0d58f;           /* mid gold */
-  --paper-gold-light: #f9e9b8;     /* highlight */
-  --accent-gold: #c89b2a;          /* UI accent / buttons */
+  --paper-gold-deep: #d4b04a;    /* deep bar gold base */
+  --paper-gold-dark: #c79f3a;    /* darker paper edge */
+  --paper-gold-mid: #e0b85a;     /* mid highlight */
+  --accent-gold: #b8861f;        /* UI accent / buttons */
   --text-black: #0b0b0b;
-  --panel-border: rgba(0,0,0,0.10);
+  --panel-border: rgba(0,0,0,0.12);
   --ui-radius: 12px;
-  --shadow-strong: 0 18px 40px rgba(0,0,0,0.55);
+  --shadow-strong: 0 20px 50px rgba(0,0,0,0.6);
   --max-width: 1400px;
 }
 
@@ -22,13 +21,13 @@ html, body {
   height:100%;
   margin:0;
   padding:0;
-  background: #0b0b0b; /* keep deep black behind everything for contrast */
+  background: #070707; /* deep black behind everything */
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   color: var(--text-black);
   -webkit-font-smoothing:antialiased;
 }
 
-/* Background image element (loaded from HTML) */
+/* Background image element (if used from HTML) */
 .bg-img {
   position: fixed;
   inset: 0;
@@ -36,10 +35,10 @@ html, body {
   height: 100%;
   object-fit: cover;
   object-position: center center;
-  z-index: -999;            /* behind everything */
+  z-index: -999;
   pointer-events: none;
-  opacity: 0.88;
-  filter: saturate(0.95) contrast(0.92) brightness(0.58);
+  opacity: 0.86;
+  filter: saturate(0.95) contrast(0.9) brightness(0.55);
 }
 
 /* subtle overlay above the image to keep contrast */
@@ -48,7 +47,7 @@ html, body {
   inset: 0;
   z-index: -998;
   pointer-events: none;
-  background: linear-gradient(rgba(0,0,0,0.48), rgba(0,0,0,0.62));
+  background: linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.66));
 }
 
 /* Brand button */
@@ -81,24 +80,27 @@ html, body {
   min-height: calc(100vh - 72px);
 }
 
-/* Panels: darker gold paper look */
+/* Panels: deep bar-gold paper look */
 .panel {
-  background: linear-gradient(180deg, var(--paper-gold-dark), var(--paper-gold));
+  background: linear-gradient(180deg, var(--paper-gold-deep), var(--paper-gold-dark));
   border-radius: var(--ui-radius);
   padding: 16px;
   border: 1px solid var(--panel-border);
   box-shadow: var(--shadow-strong);
   color: var(--text-black);
-  font-weight: 600;
+  font-weight: 700;
 }
 
-/* Make center editor panel slightly lighter to read content */
+/* Make center editor panel slightly lighter for readability */
 .panel-center {
-  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-light));
+  background: linear-gradient(180deg, var(--paper-gold-mid), var(--paper-gold-deep));
 }
 
 /* Left sidebar */
 .panel-left { overflow:auto; min-height:480px; }
+
+/* Center editor */
+.panel-center { display:flex; flex-direction:column; gap:12px; min-height:480px; }
 
 /* Right inspector */
 .panel-right { min-height:480px; }
@@ -109,7 +111,7 @@ html, body {
   flex:1;
   padding:10px 12px;
   border-radius:10px;
-  border:1px solid rgba(0,0,0,0.08);
+  border:1px solid rgba(0,0,0,0.10);
   background: rgba(0,0,0,0.03);
   color: var(--text-black);
   font-size:18px;
@@ -118,7 +120,7 @@ html, body {
   width:320px;
   padding:10px 12px;
   border-radius:10px;
-  border:1px solid rgba(0,0,0,0.08);
+  border:1px solid rgba(0,0,0,0.10);
   background: rgba(0,0,0,0.03);
   color: var(--text-black);
 }
@@ -126,30 +128,30 @@ html, body {
 /* Toolbar */
 .toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:6px 0; }
 .tool-btn {
-  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-dark));
-  border: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(180deg, var(--paper-gold-dark), var(--paper-gold-deep));
+  border: 1px solid rgba(0,0,0,0.08);
   color: var(--text-black);
   padding:6px 8px;
   border-radius:8px;
   cursor:pointer;
-  font-weight:700;
+  font-weight:800;
 }
 .tool-select, .tool-range {
   background: rgba(0,0,0,0.03);
   color: var(--text-black);
-  border:1px solid rgba(0,0,0,0.06);
+  border:1px solid rgba(0,0,0,0.08);
   padding:6px 8px;
   border-radius:8px;
 }
 
-/* Editor: paper surface with black text (slightly darker gold edge) */
+/* Editor: paper surface with black text (inner paper slightly lighter) */
 .editor {
   flex:1;
   min-height:420px;
   padding:24px;
   border-radius:10px;
   border:1px solid rgba(0,0,0,0.06);
-  background: linear-gradient(180deg, #fff7e8, #fff3dd); /* readable inner paper */
+  background: linear-gradient(180deg, #fff6e0, #fff1d0);
   color: var(--text-black);
   overflow:auto;
   outline:none;
@@ -161,7 +163,7 @@ html, body {
 /* placeholder text color */
 .editor:empty::before { content: attr(data-placeholder); color: rgba(0,0,0,0.28); }
 
-/* Stats: darker gold blocks behind labels */
+/* Stats: deep gold blocks behind labels */
 .stats-panel {
   display:flex;
   justify-content:space-between;
@@ -169,68 +171,71 @@ html, body {
   gap:12px;
   padding:8px 12px;
   border-radius:8px;
-  background: linear-gradient(180deg, rgba(200,150,40,0.14), rgba(200,150,40,0.10));
+  background: linear-gradient(180deg, rgba(180,130,30,0.20), rgba(180,130,30,0.14));
   color: var(--text-black);
 }
 
-/* Tree: darker gold blocks behind node labels */
+/* Tree: deep gold blocks behind node labels */
 .tree-block { margin-bottom:14px; }
-.tree-block h4 { margin:0 0 8px 0; font-size:13px; color:var(--text-black); font-weight:800; }
+.tree-block h4 { margin:0 0 8px 0; font-size:13px; color:var(--text-black); font-weight:900; }
 .tree-node {
-  padding:8px 10px;
+  padding:10px 12px;
   border-radius:8px;
   cursor:pointer;
   color: var(--text-black);
-  background: linear-gradient(180deg, rgba(200,150,40,0.12), rgba(200,150,40,0.06));
-  margin-bottom:6px;
-  border: 1px solid rgba(0,0,0,0.04);
+  background: linear-gradient(180deg, rgba(180,130,30,0.16), rgba(180,130,30,0.08));
+  margin-bottom:8px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
 }
-.tree-node:hover { background: linear-gradient(180deg, rgba(200,150,40,0.20), rgba(200,150,40,0.10)); }
+.tree-node:hover { background: linear-gradient(180deg, rgba(180,130,30,0.24), rgba(180,130,30,0.12)); }
 
 /* Add buttons */
 .tree-add-part, .tree-add-chapter {
   margin:8px 0;
-  padding:6px 8px;
+  padding:8px 10px;
   border-radius:8px;
-  background: linear-gradient(180deg, var(--paper-gold), var(--paper-gold-dark));
+  background: linear-gradient(180deg, var(--paper-gold-dark), var(--accent-gold));
   border:none;
   color: var(--text-black);
   cursor:pointer;
-  font-weight:700;
+  font-weight:800;
 }
 
 /* Inspector */
-.inspector-heading { margin:0 0 12px 0; color:var(--text-black); font-size:16px; }
+.inspector-heading { margin:0 0 12px 0; color:var(--text-black); font-size:16px; font-weight:800; }
 .inspector-row { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-.inspector-row label { font-size:12px; color:rgba(0,0,0,0.75); font-weight:700; }
+.inspector-row label { font-size:12px; color:rgba(0,0,0,0.75); font-weight:800; }
 .inspector-value {
-  background: rgba(255,255,255,0.92);
-  padding:8px 10px;
+  background: rgba(255,255,255,0.94);
+  padding:10px 12px;
   border-radius:8px;
   color:var(--text-black);
-  border:1px solid rgba(0,0,0,0.04);
-  min-height:28px;
+  border:1px solid rgba(0,0,0,0.06);
+  min-height:32px;
   display:flex;
   align-items:center;
+  font-weight:700;
 }
 
 /* Inspector actions */
 .inspector-actions { display:flex; gap:8px; margin-top:8px; }
 .dock-btn {
-  padding:8px 10px;
+  padding:10px 12px;
   border-radius:8px;
   border:none;
-  background: linear-gradient(180deg, var(--paper-gold-dark), var(--accent-gold));
+  background: linear-gradient(180deg, var(--paper-gold-deep), var(--accent-gold));
   color:#111;
   cursor:pointer;
-  font-weight:700;
+  font-weight:800;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
 }
 
 /* Scene break style */
 .scene-break { margin:12px 0; text-align:center; color:rgba(0,0,0,0.6); }
 
 /* Empty state */
-.empty-state { text-align:center; color:rgba(0,0,0,0.75); padding:20px; }
+.empty-state { text-align:center; color:rgba(0,0,0,0.75); padding:20px; font-weight:700; }
 
 /* Responsive */
 @media (max-width: 1100px) {
