@@ -4,7 +4,7 @@
 
 const $ = id => document.getElementById(id);
 
-// DOM refs
+// DOM refs (guarded later)
 const leftSidebar = $('leftSidebar');
 const editorContent = $('editorContent');
 const titleInput = $('chapterTitle');
@@ -73,6 +73,7 @@ function findPageById(structure, id) {
 
 // ---------- Sidebar rendering ----------
 function renderSidebar() {
+  if (!leftSidebar) return;
   const book = getCurrentBook();
   if (!book) {
     leftSidebar.innerHTML = `<div class="empty-state">No active book. Open the library.</div>`;
@@ -102,6 +103,7 @@ function buildTreeHtml(structure) {
   return html;
 }
 function attachSidebarEvents() {
+  if (!leftSidebar) return;
   leftSidebar.querySelectorAll('.tree-node').forEach(el => el.onclick = () => loadPage(el.dataset.id));
   leftSidebar.querySelectorAll('.tree-add-part').forEach(btn => btn.onclick = addPart);
   leftSidebar.querySelectorAll('.tree-add-chapter').forEach(btn => btn.onclick = () => addChapter(btn.dataset.part));
@@ -116,10 +118,13 @@ function loadPage(id) {
   const page = findPageById(book.structure, id); if (!page) return;
   currentPage = page;
 
-  titleInput.value = page.label || '';
-  subtitleInput.value = page.subtitle || '';
+  if (titleInput) titleInput.value = page.label || '';
+  if (subtitleInput) subtitleInput.value = page.subtitle || '';
+
   // ensure content is string
-  editorContent.innerHTML = (typeof page.content === 'string') ? page.content : (page.content == null ? '' : String(page.content));
+  if (editorContent) {
+    editorContent.innerHTML = (typeof page.content === 'string') ? page.content : (page.content == null ? '' : String(page.content));
+  }
 
   if (page.type === 'toc') generateTOC();
 
@@ -129,19 +134,18 @@ function loadPage(id) {
 
 function persistCurrentPage() {
   if (!currentPage) return;
-  currentPage.label = titleInput.value;
-  currentPage.subtitle = subtitleInput.value;
-  // store string content only
-  currentPage.content = String(editorContent.innerHTML || '');
+  if (titleInput) currentPage.label = titleInput.value;
+  if (subtitleInput) currentPage.subtitle = subtitleInput.value;
+  if (editorContent) currentPage.content = String(editorContent.innerHTML || '');
   updateCurrentBook(b => { b.structure = b.structure; });
   const now = new Date().toLocaleString();
-  saveIndicator.textContent = `Saved ${now}`;
+  if (saveIndicator) saveIndicator.textContent = `Saved ${now}`;
   if (inspectorSaved) inspectorSaved.textContent = now;
   updateWordStats();
 }
 
 function scheduleAutoSave() {
-  saveIndicator.textContent = 'Saving…';
+  if (saveIndicator) saveIndicator.textContent = 'Saving…';
   if (autoSaveTimer) clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => persistCurrentPage(), 800);
 }
@@ -149,10 +153,10 @@ function scheduleAutoSave() {
 // ---------- Add / Edit structure ----------
 function addPart() {
   const book = getCurrentBook(); if (!book) return;
-  const parts = book.structure.parts || [];
-  const idx = parts.length + 1;
+  book.structure.parts = book.structure.parts || [];
+  const idx = book.structure.parts.length + 1;
   const newPart = { id: `part${idx}`, type: 'part', label: `Part ${idx}`, subtitle: '', chapters: [] };
-  parts.push(newPart);
+  book.structure.parts.push(newPart);
   updateCurrentBook(b => { b.structure = book.structure; });
   renderSidebar();
   loadPage(newPart.id);
@@ -161,9 +165,9 @@ function addPart() {
 function addChapter(partId) {
   const book = getCurrentBook(); if (!book) return;
   const part = (book.structure.parts || []).find(p => p.id === partId); if (!part) return;
-  const num = (part.chapters || []).length + 1;
-  const newChapter = { id: `${partId}-ch${num}`, type: 'chapter', label: `Chapter ${num}`, subtitle: '', content: '' };
   part.chapters = part.chapters || [];
+  const num = part.chapters.length + 1;
+  const newChapter = { id: `${partId}-ch${num}`, type: 'chapter', label: `Chapter ${num}`, subtitle: '', content: '' };
   part.chapters.push(newChapter);
   updateCurrentBook(b => { b.structure = book.structure; });
   renderSidebar();
@@ -182,33 +186,34 @@ function generateTOC() {
   });
   if (currentPage) {
     currentPage.content = html;
-    editorContent.innerHTML = html;
+    if (editorContent) editorContent.innerHTML = html;
     persistCurrentPage();
   }
 }
 
-// Robust word counting: accepts strings, DOM nodes, numbers, nulls
+// Robust word counting: accepts strings, DOM nodes, numbers, arrays, objects
 function countWordsFromHtml(input = '') {
-  // Normalize input to string
   if (input == null) return 0;
-  if (typeof input !== 'string') {
-    // If it's a DOM node, extract textContent
-    if (input.nodeType && typeof input.textContent === 'string') {
-      input = input.textContent;
-    } else {
-      // fallback to string coercion
-      input = String(input);
-    }
+
+  // If DOM node, use textContent
+  if (typeof input === 'object' && input.nodeType && typeof input.textContent === 'string') {
+    input = input.textContent;
+  } else if (Array.isArray(input)) {
+    // join array elements
+    input = input.map(i => (i == null ? '' : (typeof i === 'string' ? i : String(i)))).join(' ');
+  } else if (typeof input !== 'string') {
+    // fallback to string coercion for numbers/objects
+    try { input = String(input); } catch { input = ''; }
   }
-  // Remove HTML tags if any (in case input contains markup)
+
+  // strip HTML tags if present
   const text = input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
   if (!text) return 0;
-  // split on spaces — filter out empty tokens
-  const tokens = text.split(' ').filter(Boolean);
-  return tokens.length;
+  return text.split(' ').filter(Boolean).length;
 }
 
 function updateWordStats() {
+  if (!wordStats) return;
   const book = getCurrentBook();
   if (!book) {
     wordStats.textContent = 'Words: 0 • Chapters: 0';
@@ -216,8 +221,10 @@ function updateWordStats() {
     if (inspectorChapters) inspectorChapters.textContent = '0';
     return;
   }
+
   let totalWords = 0;
   let totalChapters = 0;
+
   (book.structure.parts || []).forEach(part => {
     (part.chapters || []).forEach(ch => {
       totalChapters++;
@@ -225,29 +232,27 @@ function updateWordStats() {
     });
   });
 
-  // include current page if it's not a chapter (or to reflect live edits)
+  // live editor content
+  const liveWords = editorContent ? countWordsFromHtml(editorContent.innerHTML || '') : 0;
+
   if (currentPage) {
-    // If current page is a chapter, its content was already counted above; but we want live editor words
-    const liveWords = countWordsFromHtml(editorContent.innerHTML || '');
-    // If currentPage is a chapter, replace that chapter's stored count with live count
     if (currentPage.type === 'chapter') {
-      // subtract stored value for this chapter (if present) and add live
-      // find stored chapter in structure
-      const bookCh = (book.structure.parts || []).flatMap(p => p.chapters || []).find(c => c.id === currentPage.id);
-      if (bookCh) {
-        const stored = countWordsFromHtml(bookCh.content || '');
+      // find stored chapter and replace its stored count with live count
+      const storedChapter = (book.structure.parts || []).flatMap(p => p.chapters || []).find(c => c.id === currentPage.id);
+      if (storedChapter) {
+        const stored = countWordsFromHtml(storedChapter.content || '');
         totalWords = totalWords - stored + liveWords;
       } else {
         totalWords += liveWords;
       }
     } else {
-      // not a chapter — include live content
+      // non-chapter pages: include live content
       totalWords += liveWords;
     }
   }
 
   wordStats.textContent = `Words: ${totalWords.toLocaleString()} • Chapters: ${totalChapters}`;
-  if (inspectorWords) inspectorWords.textContent = String(countWordsFromHtml(editorContent.innerHTML || ''));
+  if (inspectorWords) inspectorWords.textContent = String(liveWords);
   if (inspectorChapters) inspectorChapters.textContent = String(totalChapters);
 }
 
@@ -257,10 +262,12 @@ function applyEditorSettings() {
   const line = lineSpaceSelect ? lineSpaceSelect.value : '1.6';
   const letter = letterSpaceSelect ? letterSpaceSelect.value : '0';
   const family = fontFamilySelect ? fontFamilySelect.value : '';
-  editorContent.style.fontSize = `${size}px`;
-  editorContent.style.lineHeight = line;
-  editorContent.style.letterSpacing = `${letter}px`;
-  if (family) editorContent.style.fontFamily = family;
+  if (editorContent) {
+    editorContent.style.fontSize = `${size}px`;
+    editorContent.style.lineHeight = line;
+    editorContent.style.letterSpacing = `${letter}px`;
+    if (family) editorContent.style.fontFamily = family;
+  }
 }
 
 if (fontSizeSelect) fontSizeSelect.onchange = applyEditorSettings;
@@ -277,6 +284,7 @@ if (insertSceneBreak) insertSceneBreak.onclick = () => {
 };
 
 function insertNodeAtCaret(node) {
+  if (!editorContent) return;
   const sel = window.getSelection();
   if (!sel || !sel.rangeCount) {
     editorContent.appendChild(node);
@@ -296,15 +304,15 @@ document.querySelectorAll('[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => {
     const cmd = btn.dataset.cmd;
     try { document.execCommand(cmd, false, null); } catch (e) { console.warn('execCommand failed', e); }
-    editorContent.focus();
+    if (editorContent) editorContent.focus();
     scheduleAutoSave();
   });
 });
 
-// font family/size handlers (fontSize handled above via applyStyleToSelection)
+// font family/size handlers
 if (fontFamilySelect) fontFamilySelect.addEventListener('change', () => {
   try { document.execCommand('fontName', false, fontFamilySelect.value); } catch (e) { /* ignore */ }
-  editorContent.focus();
+  if (editorContent) editorContent.focus();
   scheduleAutoSave();
 });
 if (fontSizeSelect) fontSizeSelect.addEventListener('change', () => {
@@ -313,6 +321,7 @@ if (fontSizeSelect) fontSizeSelect.addEventListener('change', () => {
 });
 
 function applyStyleToSelection(prop, value) {
+  if (!editorContent) return;
   const sel = window.getSelection();
   if (!sel || !sel.rangeCount) return;
   const range = sel.getRangeAt(0);
@@ -327,20 +336,23 @@ function applyStyleToSelection(prop, value) {
 }
 
 // ---------- Editor events ----------
-editorContent.addEventListener('input', () => { scheduleAutoSave(); updateWordStats(); });
-titleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
-subtitleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
+if (editorContent) {
+  editorContent.addEventListener('input', () => { scheduleAutoSave(); updateWordStats(); });
+}
+if (titleInput) titleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
+if (subtitleInput) subtitleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
 
 // ---------- Inspector ----------
 function refreshInspector() {
-  if (inspectorTitle) inspectorTitle.textContent = titleInput.value || '—';
-  if (inspectorSubtitle) inspectorSubtitle.textContent = subtitleInput.value || '—';
+  if (inspectorTitle) inspectorTitle.textContent = (titleInput ? titleInput.value : '') || '—';
+  if (inspectorSubtitle) inspectorSubtitle.textContent = (subtitleInput ? subtitleInput.value : '') || '—';
 }
 
 // ---------- Save / preview / publish ----------
 if (saveBtn) saveBtn.addEventListener('click', () => { persistCurrentPage(); });
 if (previewBtn) previewBtn.addEventListener('click', () => {
-  const html = `<html><head><title>${escapeHtml(titleInput.value || 'Preview')}</title><style>body{font-family:Inter,system-ui;padding:40px;background:#fff;color:#111}</style></head><body><h1>${escapeHtml(titleInput.value || '')}</h1><h3>${escapeHtml(subtitleInput.value || '')}</h3>${editorContent.innerHTML}</body></html>`;
+  if (!editorContent) return;
+  const html = `<html><head><title>${escapeHtml(titleInput ? titleInput.value || 'Preview' : 'Preview')}</title><style>body{font-family:Inter,system-ui;padding:40px;background:#fff;color:#111}</style></head><body><h1>${escapeHtml(titleInput ? titleInput.value || '' : '')}</h1><h3>${escapeHtml(subtitleInput ? subtitleInput.value || '' : '')}</h3>${editorContent.innerHTML}</body></html>`;
   const w = window.open('', '_blank'); if (w) { w.document.open(); w.document.write(html); w.document.close(); }
 });
 if (publishBtn) publishBtn.addEventListener('click', () => { persistCurrentPage(); window.location.href = '../pages/publish.html'; });
@@ -372,9 +384,9 @@ function init() {
 
   const book = getCurrentBook();
   if (!book) {
-    leftSidebar.innerHTML = `<div class="empty-state">No active book selected. Open the library and choose a book.</div>`;
-    editorContent.setAttribute('contenteditable', 'false');
-    titleInput.disabled = true; subtitleInput.disabled = true;
+    if (leftSidebar) leftSidebar.innerHTML = `<div class="empty-state">No active book selected. Open the library and choose a book.</div>`;
+    if (editorContent) editorContent.setAttribute('contenteditable', 'false');
+    if (titleInput) titleInput.disabled = true; if (subtitleInput) subtitleInput.disabled = true;
     if (saveBtn) saveBtn.disabled = true; if (previewBtn) previewBtn.disabled = true; if (publishBtn) publishBtn.disabled = true;
     return;
   }
