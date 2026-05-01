@@ -8,48 +8,57 @@
 </head>
 <body>
 
-  <!-- small clickable logo (no fullscreen image) -->
+  <!-- small clickable logo -->
   <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
-    <img src="../img/publish-logo.JPG" alt="Boardwalk Book Studio" id="brandLogo" />
+    <img src="../img/publish-logo.JPG" alt="Boardwalk" id="brandLogo">
   </button>
 
   <div id="app" class="writer-layout">
 
-    <!-- LEFT SIDEBAR (rendered by js/writer.js) -->
+    <!-- LEFT: structure tree -->
     <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
 
-    <!-- RIGHT: EDITOR -->
-    <main class="panel panel-right" role="main" aria-label="Editor">
+    <!-- CENTER: editor column -->
+    <main class="panel panel-center" role="main" aria-label="Editor">
 
-      <!-- PAGE TITLE + SUBTITLE -->
+      <!-- TITLE ROW -->
       <div class="panel-header">
-        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
-        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title">
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle">
       </div>
 
-      <!-- TOOLBAR -->
-      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar"></div>
+      <!-- TOOLBAR (formatting controls) -->
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar">
+        <button type="button" data-cmd="bold" class="tool-btn" title="Bold"><strong>B</strong></button>
+        <button type="button" data-cmd="italic" class="tool-btn" title="Italic"><em>I</em></button>
+        <button type="button" data-cmd="underline" class="tool-btn" title="Underline"><u>U</u></button>
 
-      <!-- EXTRA CONTROLS -->
-      <div class="toolbar-row">
-        <label for="fontSizeSelect">Font size</label>
-        <select id="fontSizeSelect">
-          <option value="14">Small</option>
-          <option value="16" selected>Normal</option>
-          <option value="18">Large</option>
-          <option value="22">Huge</option>
+        <label class="tool-label">Font</label>
+        <select id="fontFamilySelect" class="tool-select" title="Font family">
+          <option value="Inter, system-ui">Inter</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="Times New Roman, serif">Times New Roman</option>
+          <option value="Arial, sans-serif">Arial</option>
         </select>
 
-        <label for="lineSpaceSelect">Line spacing</label>
-        <select id="lineSpaceSelect">
+        <label class="tool-label">Size</label>
+        <select id="fontSizeSelect" class="tool-select" title="Font size">
+          <option value="14">14px</option>
+          <option value="16" selected>16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+
+        <label class="tool-label">Line</label>
+        <select id="lineSpaceSelect" class="tool-select" title="Line spacing">
           <option value="1.2">1.2</option>
           <option value="1.5" selected>1.5</option>
           <option value="1.8">1.8</option>
           <option value="2.0">2.0</option>
         </select>
 
-        <label for="letterSpaceSelect">Letter spacing</label>
-        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" />
+        <label class="tool-label">Letter</label>
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range" title="Letter spacing">
 
         <button id="insertSceneBreak" class="btn btn-gold" type="button">Scene Break</button>
       </div>
@@ -59,28 +68,54 @@
         Start writing your story...
       </div>
 
-      <!-- STATS -->
-      <div class="stats-panel" role="status" aria-live="polite">
+      <!-- BOTTOM STATS -->
+      <div class="stats-panel">
         <div id="wordStats">Words: 0 • Chapters: 0</div>
         <div id="saveIndicator">Saved</div>
       </div>
 
-      <div id="nextStepGuide" class="next-step-guide" aria-live="polite"></div>
-
     </main>
 
-    <!-- CONTROL DOCK -->
-    <div id="controlDock" class="control-dock" role="toolbar" aria-label="Document actions">
-      <button id="saveBtn" class="dock-btn" type="button">💾 Save</button>
-      <button id="previewBtn" class="dock-btn" type="button">👁️ Preview</button>
-      <button id="publishBtn" class="dock-btn" type="button">🚀 Publish</button>
-      <button id="exportBtn" class="dock-btn" type="button">📦 Export</button>
-      <button id="toolsBtn" class="dock-btn" type="button">⚙️ Tools</button>
-    </div>
+    <!-- RIGHT: inspector / current page box -->
+    <aside class="panel panel-right" id="rightInspector" role="complementary" aria-label="Page inspector">
+
+      <h3 class="inspector-heading">Current Page</h3>
+
+      <div class="inspector-row">
+        <label>Title</label>
+        <div id="inspectorTitle" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Subtitle</label>
+        <div id="inspectorSubtitle" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Words</label>
+        <div id="inspectorWords" class="inspector-value">0</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Chapters</label>
+        <div id="inspectorChapters" class="inspector-value">0</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Last saved</label>
+        <div id="inspectorSaved" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-actions">
+        <button id="saveBtn" class="dock-btn">💾 Save</button>
+        <button id="previewBtn" class="dock-btn">👁️ Preview</button>
+        <button id="publishBtn" class="dock-btn">🚀 Publish</button>
+      </div>
+
+    </aside>
 
   </div>
 
-  <!-- load page logic last so DOM is ready; writer.js is the single source of truth for behavior -->
   <script type="module" src="../js/writer.js"></script>
 </body>
 </html>
