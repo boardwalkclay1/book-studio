@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <title>Boardwalk Book Studio — Writer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
 
-  <!-- Logo -->
-  <img src="../img/publish-logo.JPG" id="brandLogo"
-       alt="Boardwalk Book Studio"
-       onclick="window.location.href='../index.html'">
+  <!-- Top-left logo -->
+  <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
+    <img src="../img/publish-logo.JPG" alt="Boardwalk Book Studio" id="brandLogo" />
+  </button>
 
   <div id="app" class="writer-layout">
 
-    <!-- LEFT SIDEBAR (built by writer.js) -->
-    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
+    <!-- LEFT SIDEBAR -->
+    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure">
+      <!-- Sidebar content is rendered by js/writer.js -->
+    </aside>
 
     <!-- RIGHT: EDITOR -->
-    <section class="panel panel-right" role="main">
+    <main class="panel panel-right" role="main" aria-label="Editor">
 
       <!-- PAGE TITLE + SUBTITLE -->
-      <div class="panel-header">
-        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title">
-        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle">
+      <div class="panel-header" role="region" aria-label="Page title and subtitle">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
       </div>
 
       <!-- TOOLBAR -->
-      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar"></div>
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar">
+        <!-- Optional toolbar buttons injected by JS -->
+      </div>
 
       <!-- EXTRA CONTROLS -->
-      <div class="toolbar-row">
+      <div class="toolbar-row" role="region" aria-label="Editor controls">
         <label for="fontSizeSelect">Font size</label>
-        <select id="fontSizeSelect">
+        <select id="fontSizeSelect" aria-label="Font size">
           <option value="14">Small</option>
           <option value="16" selected>Normal</option>
           <option value="18">Large</option>
@@ -41,7 +45,7 @@
         </select>
 
         <label for="lineSpaceSelect">Line spacing</label>
-        <select id="lineSpaceSelect">
+        <select id="lineSpaceSelect" aria-label="Line spacing">
           <option value="1.2">1.2</option>
           <option value="1.5" selected>1.5</option>
           <option value="1.8">1.8</option>
@@ -49,37 +53,52 @@
         </select>
 
         <label for="letterSpaceSelect">Letter spacing</label>
-        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0">
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" aria-label="Letter spacing" />
 
-        <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
+        <button id="insertSceneBreak" class="btn btn-gold" type="button" aria-label="Insert scene break">Scene Break</button>
       </div>
 
       <!-- EDITOR -->
-      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor">
+      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor" data-placeholder="Start writing your story...">
         Start writing your story...
       </div>
 
       <!-- STATS -->
-      <div class="stats-panel">
-        <div id="wordStats" aria-live="polite">Words: 0 • Chapters: 0</div>
-        <div id="saveIndicator" aria-live="polite">Saved</div>
+      <div class="stats-panel" role="status" aria-live="polite">
+        <div id="wordStats">Words: 0 • Chapters: 0</div>
+        <div id="saveIndicator">Saved</div>
       </div>
 
       <div id="nextStepGuide" class="next-step-guide" aria-live="polite"></div>
 
-    </section>
+    </main>
 
     <!-- CONTROL DOCK -->
     <div id="controlDock" class="control-dock" role="toolbar" aria-label="Document actions">
-      <button id="saveBtn" class="dock-btn">💾 Save</button>
-      <button id="previewBtn" class="dock-btn">👁️ Preview</button>
-      <button id="publishBtn" class="dock-btn">🚀 Publish</button>
-      <button id="exportBtn" class="dock-btn">📦 Export</button>
-      <button id="toolsBtn" class="dock-btn">⚙️ Tools</button>
+      <button id="saveBtn" class="dock-btn" type="button" aria-label="Save">💾 Save</button>
+      <button id="previewBtn" class="dock-btn" type="button" aria-label="Preview">👁️ Preview</button>
+      <button id="publishBtn" class="dock-btn" type="button" aria-label="Publish">🚀 Publish</button>
+      <button id="exportBtn" class="dock-btn" type="button" aria-label="Export">📦 Export</button>
+      <button id="toolsBtn" class="dock-btn" type="button" aria-label="Tools">⚙️ Tools</button>
     </div>
 
   </div>
 
-  <script src="../js/writer.js" type="module"></script>
+  <script type="module" src="../js/writer.js"></script>
+  <script>
+    // small runtime fixes to ensure the page works even if writer.js hasn't rendered yet
+    document.getElementById('brandBtn').addEventListener('click', () => {
+      window.location.href = '../index.html';
+    });
+
+    // ensure editor placeholder behavior on focus/blur
+    const editor = document.getElementById('editorContent');
+    editor.addEventListener('focus', () => {
+      if (editor.textContent.trim() === 'Start writing your story...') editor.textContent = '';
+    });
+    editor.addEventListener('blur', () => {
+      if (editor.textContent.trim() === '') editor.textContent = 'Start writing your story...';
+    });
+  </script>
 </body>
 </html>
