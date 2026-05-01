@@ -1,79 +1,195 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Boardwalk Book Studio — Library</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+// DOM
+const bookGrid = document.getElementById("bookGrid");
+const newBookBtn = document.getElementById("newBookBtn");
+const newBookModal = document.getElementById("newBookModal");
 
-  <!-- GLOBAL + PAGE CSS -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/index.css">
-</head>
-<body>
+const titleInput = document.getElementById("newBookTitle");
+const subtitleInput = document.getElementById("newBookSubtitle");
+const authorInput = document.getElementById("newBookAuthor");
+const genreInput = document.getElementById("newBookGenre");
+const audienceInput = document.getElementById("newBookAudience");
+const descInput = document.getElementById("newBookDescription");
+const coverInput = document.getElementById("newBookCover");
 
-  <!-- FULLSCREEN BACKGROUND -->
-  <div class="library-bg"></div>
+const createBookConfirm = document.getElementById("createBookConfirm");
+const closeModal = document.getElementById("closeModal");
 
-  <!-- Logo -->
-  <img src="img/publish-logo.JPG" id="brandLogo" onclick="window.location.href='index.html'">
+// STORAGE HELPERS
+function getBooks() {
+  return JSON.parse(localStorage.getItem("books") || "[]");
+}
 
-  <div id="libraryApp">
+function saveBooks(books) {
+  localStorage.setItem("books", JSON.stringify(books));
+}
 
-    <!-- HERO HEADER -->
-    <div class="library-hero">
-      <h1 class="library-title">Boardwalk Book Studio</h1>
-      <p class="library-tagline">Create. Write. Publish. Your entire book journey starts here.</p>
-    </div>
+function openBook(id) {
+  localStorage.setItem("currentBook", id);
+  window.location.href = "pages/writer.html";
+}
 
-    <!-- HEADER BAR -->
-    <div class="library-header">
-      <h2 class="library-subtitle">Your Books</h2>
-      <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
-    </div>
+// RESET MODAL FIELDS
+function resetModal() {
+  titleInput.value = "";
+  subtitleInput.value = "";
+  authorInput.value = "";
+  genreInput.value = "";
+  audienceInput.value = "";
+  descInput.value = "";
+  coverInput.value = "";
+}
 
-    <!-- BOOK GRID PANEL -->
-    <div class="library-panel">
-      <div id="bookGrid" class="book-grid"></div>
-    </div>
+// LOAD BOOKS
+function loadBooks() {
+  const books = getBooks();
 
-  </div>
-
-  <!-- NEW BOOK MODAL -->
-  <div id="newBookModal" class="modal hidden">
-    <div class="modal-content">
-
-      <h2 class="modal-title">Create New Book</h2>
-
-      <label class="field-label">Book Title</label>
-      <input id="newBookTitle" class="field-input" placeholder="Enter book title">
-
-      <label class="field-label">Subtitle</label>
-      <input id="newBookSubtitle" class="field-input" placeholder="Optional subtitle">
-
-      <label class="field-label">Author Name</label>
-      <input id="newBookAuthor" class="field-input" placeholder="Your name or pen name">
-
-      <label class="field-label">Genre</label>
-      <input id="newBookGenre" class="field-input" placeholder="Fantasy, Thriller, Romance...">
-
-      <label class="field-label">Audience</label>
-      <input id="newBookAudience" class="field-input" placeholder="Adults, YA, Middle Grade...">
-
-      <label class="field-label">Short Description</label>
-      <textarea id="newBookDescription" class="field-input" placeholder="What is this book about?"></textarea>
-
-      <label class="field-label">Cover Image</label>
-      <input type="file" id="newBookCover" accept="image/*" class="field-input">
-
-      <div class="modal-actions">
-        <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
-        <button id="closeModal" class="btn modal-btn">Cancel</button>
+  if (books.length === 0) {
+    bookGrid.innerHTML = `
+      <div class="empty-state">
+        <p>You haven't created any books yet.</p>
+        <p>Click <strong>Create New Book</strong> to get started.</p>
       </div>
+    `;
+    return;
+  }
 
-    </div>
-  </div>
+  bookGrid.innerHTML = books
+    .map(
+      b => `
+      <div class="book-card" data-id="${b.id}">
+        
+        <div class="book-cover">
+          ${
+            b.cover
+              ? `<img src="${b.cover}" alt="Cover">`
+              : `<div class="cover-placeholder">No Cover</div>`
+          }
+        </div>
 
-  <!-- JS -->
-  <script src="js/index.js" type="module"></script>
-</body>
-</html>
+        <div class="book-info">
+          <div class="book-title">${b.title}</div>
+          ${b.subtitle ? `<div class="book-subtitle">${b.subtitle}</div>` : ""}
+          <div class="book-author">by ${b.author || "Unknown"}</div>
+        </div>
+
+        <div class="book-actions">
+          <button class="book-open">Open</button>
+          <button class="book-edit">Edit</button>
+          <button class="book-delete">Delete</button>
+        </div>
+
+      </div>
+    `
+    )
+    .join("");
+
+  document.querySelectorAll(".book-open").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      openBook(id);
+    };
+  });
+
+  document.querySelectorAll(".book-delete").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      deleteBook(id);
+    };
+  });
+
+  document.querySelectorAll(".book-edit").forEach(btn => {
+    btn.onclick = e => {
+      const id = e.target.closest(".book-card").dataset.id;
+      editBook(id);
+    };
+  });
+}
+
+// DELETE BOOK
+function deleteBook(id) {
+  const books = getBooks().filter(b => b.id !== id);
+  saveBooks(books);
+  loadBooks();
+}
+
+// EDIT BOOK
+function editBook(id) {
+  const book = getBooks().find(b => b.id === id);
+  if (!book) return;
+
+  titleInput.value = book.title;
+  subtitleInput.value = book.subtitle;
+  authorInput.value = book.author;
+  genreInput.value = book.genre;
+  audienceInput.value = book.audience;
+  descInput.value = book.description;
+
+  newBookModal.classList.remove("hidden");
+
+  createBookConfirm.onclick = () => {
+    book.title = titleInput.value.trim();
+    book.subtitle = subtitleInput.value.trim();
+    book.author = authorInput.value.trim();
+    book.genre = genreInput.value.trim();
+    book.audience = audienceInput.value.trim();
+    book.description = descInput.value.trim();
+
+    saveBooks(getBooks());
+    newBookModal.classList.add("hidden");
+    loadBooks();
+  };
+}
+
+// SHOW MODAL
+newBookBtn.onclick = () => {
+  resetModal();
+  newBookModal.classList.remove("hidden");
+};
+
+// CLOSE MODAL
+closeModal.onclick = () => {
+  newBookModal.classList.add("hidden");
+};
+
+// CREATE NEW BOOK
+createBookConfirm.onclick = () => {
+  const title = titleInput.value.trim();
+  if (!title) return alert("Book needs a title.");
+
+  const file = coverInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      saveNewBook(reader.result);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    saveNewBook(null);
+  }
+};
+
+function saveNewBook(coverData) {
+  const newBook = {
+    id: "book-" + Date.now(),
+    title: titleInput.value.trim(),
+    subtitle: subtitleInput.value.trim(),
+    author: authorInput.value.trim(),
+    genre: genreInput.value.trim(),
+    audience: audienceInput.value.trim(),
+    description: descInput.value.trim(),
+    cover: coverData,
+    created: Date.now(),
+    structure: null
+  };
+
+  const books = getBooks();
+  books.push(newBook);
+  saveBooks(books);
+
+  newBookModal.classList.add("hidden");
+  loadBooks();
+}
+
+// INIT
+loadBooks();
