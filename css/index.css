@@ -1,199 +1,212 @@
 /* ============================================================
-   PUBLISH PAGE LAYOUT
+   FULLSCREEN BACKGROUND
    ============================================================ */
+.library-bg {
+  position: fixed;
+  inset: 0;
+  background: url('../img/library-bg.jpg') center/cover no-repeat;
+  filter: brightness(0.35) blur(2px);
+  z-index: -1;
+}
 
-.publish-layout {
-  display: grid;
-  grid-template-columns: 360px minmax(0, 1fr);
-  gap: 20px;
-  padding: 120px 40px 40px;
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+#libraryApp {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 40px 60px;
   box-sizing: border-box;
 }
 
 /* ============================================================
-   LEFT PANEL — BOOK META + COVER + NOTES
+   HERO HEADER
    ============================================================ */
+.library-hero {
+  text-align: center;
+  margin-bottom: 50px;
+}
 
-.publish-left {
+.library-title {
+  font-size: 48px;
+  color: var(--gold-soft);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 18px rgba(245,215,110,0.6);
+  margin: 0;
+}
+
+.library-tagline {
+  font-size: 16px;
+  color: rgba(245,215,110,0.75);
+  margin-top: 10px;
+}
+
+/* ============================================================
+   HEADER BAR
+   ============================================================ */
+.library-header {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 0 6px;
 }
 
-/* BOOK META */
-.publish-meta {
-  background: rgba(0,0,0,0.55);
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(212,175,55,0.25);
-}
-
-.publish-meta-title {
+.library-subtitle {
   font-size: 22px;
   color: var(--gold-soft);
-  margin-bottom: 4px;
-  font-weight: 600;
+  margin: 0;
 }
 
-.publish-meta-subtitle {
-  font-size: 14px;
-  color: rgba(245,215,110,0.85);
-  margin-bottom: 10px;
-}
-
-.publish-meta-line {
-  font-size: 13px;
-  color: rgba(245,215,110,0.75);
-  margin-bottom: 4px;
-}
-
-/* COVER BLOCK */
-.publish-cover-block {
-  background: rgba(0,0,0,0.55);
-  padding: 16px;
+/* CREATE NEW BOOK BUTTON */
+.new-book-btn {
+  padding: 10px 18px;
+  font-size: 15px;
   border-radius: 14px;
-  border: 1px solid rgba(212,175,55,0.25);
+  box-shadow: 0 0 12px rgba(212,175,55,0.6);
 }
 
-.cover-preview {
+/* ============================================================
+   BOOK GRID PANEL
+   ============================================================ */
+.library-panel {
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.8);
+}
+
+/* BOOK GRID */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+/* ============================================================
+   BOOK CARD
+   ============================================================ */
+.book-card {
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-shadow: 0 0 14px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(245,215,110,0.7);
+}
+
+/* COVER */
+.book-cover {
   width: 100%;
-  height: 220px;
-  border-radius: 12px;
-  border: 1px dashed rgba(212,175,55,0.45);
-  background: radial-gradient(circle at top, #222 0, #000 70%);
+  height: 180px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #222 0, #000 60%);
+  border: 1px solid rgba(212,175,55,0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
-  overflow: hidden;
 }
 
-.cover-preview img {
+.book-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.cover-placeholder-text {
-  font-size: 13px;
+.cover-placeholder {
+  font-size: 12px;
   color: rgba(245,215,110,0.6);
 }
 
-.cover-input {
-  margin-bottom: 8px;
-  width: 100%;
+/* BOOK INFO */
+.book-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* NOTES */
-.publish-notes {
-  background: rgba(0,0,0,0.55);
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(212,175,55,0.25);
+.book-title {
+  font-size: 16px;
+  color: var(--gold-soft);
+  font-weight: 600;
 }
 
-.publish-notes-input {
-  width: 100%;
-  min-height: 100px;
-  border-radius: 10px;
-  border: 1px solid rgba(212,175,55,0.35);
-  background: #050505;
-  color: var(--gold);
-  padding: 10px;
-  font-size: 14px;
-  resize: vertical;
+.book-subtitle {
+  font-size: 13px;
+  color: rgba(245,215,110,0.8);
+}
+
+.book-author {
+  font-size: 12px;
+  color: rgba(245,215,110,0.7);
 }
 
 /* ============================================================
-   RIGHT PANEL — EXPORT SETTINGS
+   EMPTY STATE
    ============================================================ */
-
-.publish-right {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.empty-state {
+  text-align: center;
+  margin-top: 80px;
+  color: rgba(245,215,110,0.7);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-/* SUBPANELS */
-.subpanel {
-  background: rgba(0,0,0,0.55);
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(212,175,55,0.25);
-}
-
-.sub-title {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--gold-soft);
-  margin-bottom: 10px;
-}
-
-/* EXPORT OPTIONS */
-.export-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.export-option {
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 8px;
-  transition: 0.15s;
+  justify-content: center;
+  z-index: 2000;
 }
 
-.export-option:hover {
-  background: rgba(212,175,55,0.15);
+.modal.hidden {
+  display: none;
 }
 
-/* INPUTS */
-.field-input {
-  width: 100%;
-  margin-top: 4px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(212,175,55,0.35);
-  background: #050505;
-  color: var(--gold);
-  font-size: 14px;
-  box-sizing: border-box;
+.modal-content {
+  background: rgba(15,15,15,0.95);
+  border: 1px solid var(--border-gold);
+  border-radius: 16px;
+  padding: 30px;
+  width: 420px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.9);
 }
 
-/* ============================================================
-   ACTION BUTTONS
-   ============================================================ */
+.modal-title {
+  font-size: 22px;
+  color: var(--gold-soft);
+  margin-bottom: 20px;
+  text-align: center;
+}
 
-.publish-actions {
+.modal-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
-.publish-actions .btn {
-  flex: 1;
-  min-width: 160px;
-  padding: 10px 14px;
-  font-size: 14px;
+.modal-btn {
+  width: 48%;
+  padding: 10px 0;
   border-radius: 12px;
-}
-
-/* ============================================================
-   STATUS / LOG
-   ============================================================ */
-
-.publish-status {
-  margin-top: 10px;
-  font-size: 13px;
-  color: rgba(245,215,110,0.85);
-  padding: 10px;
-  background: rgba(0,0,0,0.45);
-  border-radius: 10px;
-  border: 1px solid rgba(212,175,55,0.25);
+  font-size: 14px;
 }
