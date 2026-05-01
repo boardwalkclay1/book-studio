@@ -22,11 +22,6 @@
   <!-- Background image loaded from HTML and pinned behind everything -->
   <img src="../img/bp-back.jpg" alt="" aria-hidden="true" class="bg-img" />
 
-  <!-- small clickable brand (top-left) -->
-  <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
-    <img src="../img/publish-logo.jpg" alt="Boardwalk" />
-  </button>
-
   <div id="app" class="writer-layout">
 
     <!-- LEFT: structure tree -->
@@ -126,15 +121,16 @@
         <button id="publishBtn" class="dock-btn">🚀 Publish</button>
       </div>
 
+      <!-- Logo placed under the Publish button, inside the right inspector.
+           It is part of the document flow (not fixed) so it scrolls with the page
+           and will not overlap inspector controls. Adjust width as needed. -->
+      <div class="inspector-logo" aria-hidden="true" style="display:flex;justify-content:flex-end;margin-top:14px;">
+        <img src="../img/publish-logo.jpg" alt="" style="width:96px;height:auto;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.35);" />
+      </div>
+
     </aside>
 
   </div>
-
-  <!-- Bottom-right logo (only change requested) -->
-  <button id="bottomLogo" aria-label="Boardwalk Home" title="Home"
-    style="position:fixed;right:18px;bottom:18px;width:96px;height:96px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:transparent;z-index:60;padding:6px;display:flex;align-items:center;justify-content:center;">
-    <img src="../img/publish-logo.jpg" alt="Boardwalk" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
-  </button>
 
   <script type="module" src="../js/writer.js"></script>
 </body>
