@@ -2,101 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Boardwalk Book Studio — Library</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Boardwalk Book Studio — Writer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- ONLY index.css (self-contained) -->
-  <link rel="stylesheet" href="css/index.css" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="../img/publish-logo.jpg" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
-
-  <!-- Favicon / social preview -->
-  <link rel="icon" type="image/jpeg" href="img/publish-logo.jpg" />
-  <meta property="og:title" content="Boardwalk Book Studio" />
-  <meta property="og:description" content="Create. Write. Publish. Your entire book journey starts here." />
-  <meta property="og:image" content="img/publish-logo.jpg" />
+  <!-- Social preview -->
+  <meta property="og:title" content="Boardwalk Book Studio — Writer" />
+  <meta property="og:description" content="Write, structure, and publish your book." />
+  <meta property="og:image" content="../img/publish-logo.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="img/publish-logo.jpg" />
+  <meta name="twitter:image" content="../img/publish-logo.jpg" />
+
+  <link rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
 
-  <!-- Decorative feathers (non-blocking) -->
-  <div class="feathers" aria-hidden="true">
-    <svg class="feather f1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 60c18-18 40-40 56-56" fill="none" stroke="rgba(212,175,55,0.9)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <svg class="feather f2" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M60 4C42 22 20 44 4 60" fill="none" stroke="rgba(212,175,55,0.85)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <svg class="feather f3" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M8 8c14 14 28 28 48 48" fill="none" stroke="rgba(212,175,55,0.7)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- Background image loaded from HTML and pinned behind everything -->
+  <img src="../img/bp-back.jpg" alt="" aria-hidden="true" class="bg-img" />
+
+  <!-- small clickable brand (top-left) -->
+  <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
+    <img src="../img/publish-logo.jpg" alt="Boardwalk" />
+  </button>
+
+  <div id="app" class="writer-layout">
+
+    <!-- LEFT: structure tree -->
+    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
+
+    <!-- CENTER: editor column -->
+    <main class="panel panel-center" role="main" aria-label="Editor">
+
+      <!-- TITLE ROW -->
+      <div class="panel-header">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
+      </div>
+
+      <!-- TOOLBAR (formatting controls) -->
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar">
+        <button type="button" data-cmd="bold" class="tool-btn" title="Bold"><strong>B</strong></button>
+        <button type="button" data-cmd="italic" class="tool-btn" title="Italic"><em>I</em></button>
+        <button type="button" data-cmd="underline" class="tool-btn" title="Underline"><u>U</u></button>
+
+        <label class="tool-label">Font</label>
+        <select id="fontFamilySelect" class="tool-select" title="Font family">
+          <option value="Inter, system-ui">Inter</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="Times New Roman, serif">Times New Roman</option>
+          <option value="Arial, sans-serif">Arial</option>
+        </select>
+
+        <label class="tool-label">Size</label>
+        <select id="fontSizeSelect" class="tool-select" title="Font size">
+          <option value="14">14px</option>
+          <option value="16" selected>16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+
+        <label class="tool-label">Line</label>
+        <select id="lineSpaceSelect" class="tool-select" title="Line spacing">
+          <option value="1.2">1.2</option>
+          <option value="1.5" selected>1.5</option>
+          <option value="1.8">1.8</option>
+          <option value="2.0">2.0</option>
+        </select>
+
+        <label class="tool-label">Letter</label>
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range" title="Letter spacing">
+
+        <button id="insertSceneBreak" class="btn btn-gold" type="button">Scene Break</button>
+      </div>
+
+      <!-- EDITOR -->
+      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor" data-placeholder="Start writing your story...">
+        Start writing your story...
+      </div>
+
+      <!-- BOTTOM STATS -->
+      <div class="stats-panel">
+        <div id="wordStats">Words: 0 • Chapters: 0</div>
+        <div id="saveIndicator">Saved</div>
+      </div>
+
+    </main>
+
+    <!-- RIGHT: inspector / current page box -->
+    <aside class="panel panel-right" id="rightInspector" role="complementary" aria-label="Page inspector">
+
+      <h3 class="inspector-heading">Current Page</h3>
+
+      <div class="inspector-row">
+        <label>Title</label>
+        <div id="inspectorTitle" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Subtitle</label>
+        <div id="inspectorSubtitle" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Words</label>
+        <div id="inspectorWords" class="inspector-value">0</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Chapters</label>
+        <div id="inspectorChapters" class="inspector-value">0</div>
+      </div>
+
+      <div class="inspector-row">
+        <label>Last saved</label>
+        <div id="inspectorSaved" class="inspector-value">—</div>
+      </div>
+
+      <div class="inspector-actions">
+        <button id="saveBtn" class="dock-btn">💾 Save</button>
+        <button id="previewBtn" class="dock-btn">👁️ Preview</button>
+        <button id="publishBtn" class="dock-btn">🚀 Publish</button>
+      </div>
+
+    </aside>
+
   </div>
 
-  <main id="libraryApp" class="library-app" role="main">
+  <!-- Bottom-right logo (only change requested) -->
+  <button id="bottomLogo" aria-label="Boardwalk Home" title="Home"
+    style="position:fixed;right:18px;bottom:18px;width:96px;height:96px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);background:transparent;z-index:60;padding:6px;display:flex;align-items:center;justify-content:center;">
+    <img src="../img/publish-logo.jpg" alt="Boardwalk" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" />
+  </button>
 
-    <!-- HERO -->
-    <header class="library-hero" role="banner">
-      <h1 class="library-title">Boardwalk Book Studio</h1>
-      <p class="library-tagline">Create. Write. Publish. Your entire book journey starts here.</p>
-
-      <div class="hero-actions" style="margin-top: 20px;">
-        <a href="pages/publish.html" class="btn-gold publish-btn">Publish With Us</a>
-        <a href="pages/books.html" class="btn btn-outline">Our Catalog</a>
-      </div>
-
-      <!-- NEW: larger logo placed under the Publish button, aligned to the right.
-           This image is in the normal document flow and will scroll with the page. -->
-      <div class="hero-logo-container" aria-hidden="true">
-        <img src="img/publish-logo.jpg" alt="Boardwalk logo" class="hero-logo" />
-      </div>
-    </header>
-
-    <!-- HEADER BAR -->
-    <div class="library-header">
-      <h2 class="library-subtitle">Your Books</h2>
-      <div class="header-actions">
-        <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
-      </div>
-    </div>
-
-    <!-- BOOK GRID PANEL -->
-    <section class="library-panel" aria-labelledby="library-heading">
-      <div id="bookGrid" class="book-grid" role="list" aria-live="polite"></div>
-    </section>
-
-  </main>
-
-  <!-- NEW BOOK MODAL -->
-  <div id="newBookModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-content">
-      <h2 id="modalTitle" class="modal-title">Create New Book</h2>
-
-      <label class="field-label">Book Title</label>
-      <input id="newBookTitle" class="field-input" placeholder="Enter book title" />
-
-      <label class="field-label">Subtitle</label>
-      <input id="newBookSubtitle" class="field-input" placeholder="Optional subtitle" />
-
-      <label class="field-label">Author Name</label>
-      <input id="newBookAuthor" class="field-input" placeholder="Your name or pen name" />
-
-      <label class="field-label">Genre</label>
-      <input id="newBookGenre" class="field-input" placeholder="Fantasy, Thriller, Romance..." />
-
-      <label class="field-label">Audience</label>
-      <input id="newBookAudience" class="field-input" placeholder="Adults, YA, Middle Grade..." />
-
-      <label class="field-label">Short Description</label>
-      <textarea id="newBookDescription" class="field-input" placeholder="What is this book about?"></textarea>
-
-      <label class="field-label">Cover Image</label>
-      <input type="file" id="newBookCover" accept="image/*" class="field-input" />
-
-      <div class="modal-actions">
-        <button id="createBookConfirm" class="btn btn-gold modal-btn">Save</button>
-        <button id="closeModal" class="btn modal-btn">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="js/index.js" type="module"></script>
+  <script type="module" src="../js/writer.js"></script>
 </body>
 </html>
