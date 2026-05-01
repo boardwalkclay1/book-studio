@@ -4,26 +4,37 @@
   <meta charset="UTF-8">
   <title>Boardwalk Book Studio — Library</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
   <!-- GLOBAL + PAGE CSS -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
 
+  <!-- FULLSCREEN BACKGROUND -->
+  <div class="library-bg"></div>
+
   <!-- Logo -->
   <img src="img/publish-logo.JPG" id="brandLogo" onclick="window.location.href='index.html'">
 
   <div id="libraryApp">
 
-    <!-- HEADER -->
+    <!-- HERO HEADER -->
+    <div class="library-hero">
+      <h1 class="library-title">Boardwalk Book Studio</h1>
+      <p class="library-tagline">Create. Write. Publish. Your entire book journey starts here.</p>
+    </div>
+
+    <!-- HEADER BAR -->
     <div class="library-header">
-      <h1 class="library-title">Your Books</h1>
+      <h2 class="library-subtitle">Your Books</h2>
       <button id="newBookBtn" class="btn btn-gold new-book-btn">+ Create New Book</button>
     </div>
 
-    <!-- BOOK GRID -->
-    <div id="bookGrid" class="book-grid"></div>
+    <!-- BOOK GRID PANEL -->
+    <div class="library-panel">
+      <div id="bookGrid" class="book-grid"></div>
+    </div>
 
   </div>
 
