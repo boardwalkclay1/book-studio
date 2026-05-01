@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <title>Boardwalk Book Studio — Publish</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/main.css">
+
+  <!-- GLOBAL CSS -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/publish.css">
 </head>
 <body>
 
   <!-- Logo -->
-  <img src="img/publish-logo.JPG" id="brandLogo"
-       onclick="window.location.href='index.html'">
+  <img src="../img/publish-logo.JPG" id="brandLogo"
+       onclick="window.location.href='../index.html'">
 
   <div id="app" class="publish-layout">
 
@@ -21,10 +24,10 @@
         <h2 class="panel-title">Publish Book</h2>
       </div>
 
-      <div id="publishBookMeta" class="publish-meta">
-        <!-- Filled by JS -->
-      </div>
+      <!-- BOOK META (TITLE, AUTHOR, GENRE, WORD COUNT, ETC.) -->
+      <div id="publishBookMeta" class="publish-meta"></div>
 
+      <!-- COVER -->
       <div class="publish-cover-block">
         <h3 class="sub-title">Cover</h3>
 
@@ -36,10 +39,11 @@
         <button id="removeCoverBtn" class="btn">Remove Cover</button>
       </div>
 
+      <!-- NOTES -->
       <div class="publish-notes">
         <h3 class="sub-title">Notes</h3>
         <textarea id="publishNotes" class="publish-notes-input"
-                  placeholder="Any special notes for printing, formatting, or distribution..."></textarea>
+          placeholder="Any special notes for printing, formatting, or distribution..."></textarea>
       </div>
 
     </section>
@@ -51,7 +55,7 @@
         <h2 class="panel-title">Export & Settings</h2>
       </div>
 
-      <!-- FORMAT OPTIONS -->
+      <!-- EXPORT FORMAT -->
       <div class="subpanel">
         <h3 class="sub-title">Export Format</h3>
 
@@ -122,7 +126,7 @@
         <input id="publishYear" class="field-input" placeholder="2026">
       </div>
 
-      <!-- ACTIONS -->
+      <!-- ACTION BUTTONS -->
       <div class="publish-actions">
         <button id="backToWriterBtn" class="btn">← Back to Writer</button>
         <button id="previewExportBtn" class="btn">👁️ Preview Export</button>
@@ -139,6 +143,7 @@
 
   </div>
 
-  <script src="js/publish.js" type="module"></script>
+  <!-- JS -->
+  <script src="../js/publish.js" type="module"></script>
 </body>
 </html>
