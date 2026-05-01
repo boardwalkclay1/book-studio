@@ -4,13 +4,27 @@
   <meta charset="utf-8" />
   <title>Boardwalk Book Studio — Writer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/jpeg" href="../img/publish-logo.jpg" />
+
+  <!-- Social preview -->
+  <meta property="og:title" content="Boardwalk Book Studio — Writer" />
+  <meta property="og:description" content="Write, structure, and publish your book." />
+  <meta property="og:image" content="../img/publish-logo.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="../img/publish-logo.jpg" />
+
   <link rel="stylesheet" href="../css/main.css" />
 </head>
 <body>
 
-  <!-- small clickable logo -->
+  <!-- Background image loaded from HTML and pinned behind everything -->
+  <img src="../img/bp-back.jpg" alt="" aria-hidden="true" class="bg-img" />
+
+  <!-- small clickable brand (top-left) -->
   <button id="brandBtn" class="brand-btn" aria-label="Boardwalk Home" title="Home">
-    <img src="../img/publish-logo.JPG" alt="Boardwalk" id="brandLogo">
+    <img src="../img/publish-logo.jpg" alt="Boardwalk" />
   </button>
 
   <div id="app" class="writer-layout">
@@ -23,8 +37,8 @@
 
       <!-- TITLE ROW -->
       <div class="panel-header">
-        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title">
-        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
       </div>
 
       <!-- TOOLBAR (formatting controls) -->
