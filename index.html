@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Boardwalk Book Studio — Library</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- GLOBAL + PAGE CSS -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/index.css">
 </head>
@@ -49,6 +51,9 @@
       <label class="field-label">Short Description</label>
       <textarea id="newBookDescription" class="field-input" placeholder="What is this book about?"></textarea>
 
+      <label class="field-label">Cover Image</label>
+      <input type="file" id="newBookCover" accept="image/*" class="field-input">
+
       <div class="modal-actions">
         <button id="createBookConfirm" class="btn btn-gold modal-btn">Create Book</button>
         <button id="closeModal" class="btn modal-btn">Cancel</button>
@@ -57,6 +62,7 @@
     </div>
   </div>
 
+  <!-- JS -->
   <script src="js/index.js" type="module"></script>
 </body>
 </html>
