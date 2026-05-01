@@ -1,90 +1,260 @@
-/* Reset + base */
+/* Updated index.css
+   - Uses publish-logo.JPG as fullscreen background
+   - Cursive hero and book titles on translucent, faded blocks
+   - Black text on translucent white blocks for strong legibility
+   - Paths assume this file lives in css/ and images in img/
+*/
+
+/* Import cursive fonts */
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script:wght@400;700&display=swap');
+
 :root{
-  --gold:#f5d776;
-  --gold-soft:#f1c94f;
-  --bg-dark:#050505;
+  --gold: #f5d776;
+  --gold-soft: #f1c94f;
+  --text-black: #0b0b0b;
+  --panel-bg: rgba(6,6,6,0.56);
+  --glass-white: rgba(255,255,255,0.12);
+  --glass-white-strong: rgba(255,255,255,0.18);
+  --glass-border: rgba(212,175,55,0.08);
+  --shadow-strong: 0 20px 60px rgba(0,0,0,0.6);
 }
-html,body{height:100%;margin:0;padding:0;background:transparent;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:var(--gold-soft);}
+
+/* Reset + base */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--gold-soft);
+  -webkit-font-feature-settings: "liga" 1;
+}
 
 /* Fullscreen background using the image you specified */
-.library-bg{
-  position:fixed;
-  inset:0;
-  background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.55)), url('../img/publish-logo.JPG') center/cover no-repeat;
-  z-index:-1;
-  will-change:transform;
+.library-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0,0,0,0.46), rgba(0,0,0,0.56)),
+    url('../img/publish-logo.JPG') center/cover no-repeat;
+  z-index: -1;
+  will-change: transform;
 }
 
-/* Brand button (small top-left) */
-.brand-btn{
-  position:fixed;
-  top:18px;
-  left:18px;
-  width:56px;
-  height:56px;
-  border-radius:8px;
-  background: url('img/publish-logo.JPG') center/cover no-repeat;
-  border:1px solid rgba(255,255,255,0.06);
-  box-shadow:0 6px 20px rgba(0,0,0,0.6);
-  z-index:20;
-  cursor:pointer;
+/* Small top-left brand button using same image */
+.brand-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: url('../img/publish-logo.JPG') center/cover no-repeat;
+  background-size: cover;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  z-index: 20;
+  cursor: pointer;
 }
 
 /* Main container */
-#libraryApp{
-  position:relative;
-  z-index:10;
-  max-width:1200px;
-  margin:0 auto;
-  padding:96px 28px 60px;
-  box-sizing:border-box;
+#libraryApp {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 96px 28px 60px;
+  box-sizing: border-box;
 }
 
-/* Hero */
-.library-hero{text-align:center;margin-bottom:28px;}
-.library-title{font-size:44px;margin:0;color:var(--gold);text-shadow:0 8px 30px rgba(0,0,0,0.6);}
-.library-tagline{margin-top:8px;color:rgba(245,215,110,0.85);font-size:15px;}
+/* HERO layout */
+.library-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* Hero title: large cursive on translucent white block with black text */
+.library-title {
+  font-family: "Great Vibes", cursive;
+  font-size: 56px;
+  line-height: 1;
+  color: var(--text-black);
+  display: inline-block;
+  background: var(--glass-white-strong);
+  padding: 14px 28px;
+  border-radius: 12px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+
+/* Tagline: script font on matching translucent block */
+.library-tagline {
+  font-family: "Dancing Script", cursive;
+  font-size: 18px;
+  color: var(--text-black);
+  display: inline-block;
+  background: var(--glass-white);
+  padding: 8px 18px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  margin: 0;
+}
 
 /* Header bar */
-.library-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
-.library-subtitle{font-size:20px;color:var(--gold-soft);margin:0;}
-.header-actions{display:flex;gap:12px;align-items:center;}
+.library-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.library-subtitle {
+  font-size: 20px;
+  color: var(--gold-soft);
+  margin: 0;
+}
+.header-actions { display:flex; gap:12px; align-items:center; }
 
-/* Button styles */
-.btn{background:transparent;border:1px solid rgba(245,215,110,0.08);color:var(--gold);padding:8px 12px;border-radius:10px;cursor:pointer;}
-.btn-gold{background:linear-gradient(180deg,var(--gold-soft),#d4a83a);color:#111;border:none;box-shadow:0 8px 30px rgba(212,175,55,0.12);}
+/* Buttons */
+.btn {
+  background: transparent;
+  border: 1px solid rgba(245,215,110,0.08);
+  color: var(--gold);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.btn-gold {
+  background: linear-gradient(180deg, var(--gold-soft), #d4a83a);
+  color: #111;
+  border: none;
+  box-shadow: 0 8px 30px rgba(212,175,55,0.12);
+}
 
 /* Panel */
-.library-panel{background:rgba(6,6,6,0.56);border-radius:14px;padding:20px;border:1px solid rgba(212,175,55,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.6);}
+.library-panel {
+  background: var(--panel-bg);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-strong);
+}
 
 /* Grid */
-.book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
 
 /* Card */
-.book-card{background:rgba(10,10,10,0.7);border-radius:12px;padding:12px;border:1px solid rgba(212,175,55,0.06);transition:transform .18s ease,box-shadow .18s ease;display:flex;flex-direction:column;gap:10px;}
-.book-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.6),0 0 18px rgba(245,215,110,0.06);border-color:rgba(245,215,110,0.12);}
+.book-card {
+  background: rgba(255,255,255,0.06); /* slightly lighter so translucent blocks read */
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--text-black);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(212,175,55,0.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+  backdrop-filter: blur(4px);
+}
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 0 18px rgba(245,215,110,0.06);
+  border-color: rgba(245,215,110,0.12);
+}
 
 /* Cover */
-.book-cover{height:150px;border-radius:8px;overflow:hidden;background:linear-gradient(180deg,#111,#000);display:flex;align-items:center;justify-content:center;border:1px solid rgba(212,175,55,0.04);}
-.book-cover img{width:100%;height:100%;object-fit:cover;}
+.book-cover {
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(180deg,#111,#000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(212,175,55,0.04);
+}
+.book-cover img { width:100%; height:100%; object-fit:cover; }
 
-/* Info */
-.book-title{font-size:15px;font-weight:600;color:var(--gold);}
-.book-subtitle{font-size:13px;color:rgba(245,215,110,0.85);}
-.book-author{font-size:12px;color:rgba(245,215,110,0.7);}
+/* Info - book title uses cursive on translucent block with black text */
+.book-title {
+  font-family: "Dancing Script", cursive;
+  font-size: 20px;
+  color: var(--text-black);
+  display: inline-block;
+  background: var(--glass-white);
+  padding: 6px 10px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+  margin-bottom: 4px;
+}
+.book-subtitle {
+  font-size: 13px;
+  color: rgba(11,11,11,0.85);
+}
+.book-author {
+  font-size: 12px;
+  color: rgba(11,11,11,0.7);
+}
 
 /* Actions */
-.book-actions{display:flex;gap:8px;margin-top:6px;}
-.book-actions button{padding:6px 8px;border-radius:8px;border:none;background:rgba(245,215,110,0.06);color:var(--gold);cursor:pointer;}
+.book-actions { display:flex; gap:8px; margin-top:6px; }
+.book-actions button { padding:6px 8px; border-radius:8px; border:none; background:rgba(245,215,110,0.06); color:var(--gold); cursor:pointer; }
 
 /* Empty state */
-.empty-state{text-align:center;color:rgba(245,215,110,0.75);padding:40px 0;font-size:15px;}
+.empty-state { text-align:center; color:rgba(245,215,110,0.75); padding:40px 0; font-size:15px; }
 
 /* Modal */
-.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);z-index:9999;}
-.modal.hidden{display:none;}
-.modal-content{width:420px;background:rgba(12,12,12,0.98);border-radius:12px;padding:22px;border:1px solid rgba(212,175,55,0.08);box-shadow:0 20px 60px rgba(0,0,0,0.7);}
-.modal-title{color:var(--gold);text-align:center;margin:0 0 12px 0;font-size:20px;}
-.field-input, textarea.field-input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(212,175,55,0.06);background:#0b0b0b;color:var(--gold);margin-bottom:10px;box-sizing:border-box;}
-.modal-actions{display:flex;gap:10px;justify-content:space-between;}
-.modal-btn{width:48%;padding:10px;border-radius:8px;cursor:pointer;}
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  z-index: 9999;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  width: 420px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  padding: 22px;
+  border: 1px solid rgba(212,175,55,0.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+}
+.modal-title { color: var(--gold); text-align:center; margin:0 0 12px 0; font-size:20px; }
+.field-input, textarea.field-input {
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid rgba(212,175,55,0.06);
+  background: rgba(11,11,11,0.9);
+  color: var(--gold);
+  margin-bottom:10px;
+  box-sizing:border-box;
+}
+.modal-actions { display:flex; gap:10px; justify-content:space-between; }
+.modal-btn { width:48%; padding:10px; border-radius:8px; cursor:pointer; }
+
+/* Responsive tweaks */
+@media (max-width: 720px) {
+  .library-title { font-size: 36px; padding: 10px 18px; }
+  .library-tagline { font-size: 14px; padding: 6px 12px; }
+  #libraryApp { padding: 64px 18px 40px; }
+  .book-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:14px; }
+  .book-cover { height: 130px; }
+}
