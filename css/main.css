@@ -1,249 +1,87 @@
-/* css/main.css for pages/writer.html
-   Darker gold theme: bar-gold paper, deeper gold blocks, black text
-   Replace existing css/main.css with this content
-*/
+/* ============================================
+   INPUTS — Cinematic Deep-Gold UI Styling
+   Applies to: title, subtitle, selects, ranges,
+   sidebar add-ons, inspector fields, etc.
+============================================ */
 
-:root{
-  --paper-gold-deep: #d4b04a;    /* deep bar gold base */
-  --paper-gold-dark: #c79f3a;    /* darker paper edge */
-  --paper-gold-mid: #e0b85a;     /* mid highlight */
-  --accent-gold: #b8861f;        /* UI accent / buttons */
-  --text-black: #0b0b0b;
-  --panel-border: rgba(0,0,0,0.12);
-  --ui-radius: 12px;
-  --shadow-strong: 0 20px 50px rgba(0,0,0,0.6);
-  --max-width: 1400px;
-}
-
-/* Reset */
-* { box-sizing: border-box; }
-html, body {
-  height:100%;
-  margin:0;
-  padding:0;
-  background: #070707; /* deep black behind everything */
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  color: var(--text-black);
-  -webkit-font-smoothing:antialiased;
-}
-
-/* Background image element (if used from HTML) */
-.bg-img {
-  position: fixed;
-  inset: 0;
+input[type="text"],
+input[type="number"],
+input[type="search"],
+textarea,
+select {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  z-index: -999;
-  pointer-events: none;
-  opacity: 0.86;
-  filter: saturate(0.95) contrast(0.9) brightness(0.55);
-}
-
-/* subtle overlay above the image to keep contrast */
-.bg-img + .library-bg-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: -998;
-  pointer-events: none;
-  background: linear-gradient(rgba(0,0,0,0.52), rgba(0,0,0,0.66));
-}
-
-/* Brand button */
-.brand-btn {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(0,0,0,0.28);
-  z-index: 60;
-  padding: 4px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.brand-btn img { width:100%; height:100%; object-fit:cover; border-radius:6px; }
-
-/* Layout container */
-.writer-layout {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 36px;
-  display: grid;
-  grid-template-columns: 320px 1fr 280px;
-  gap: 20px;
-  align-items: start;
-  min-height: calc(100vh - 72px);
-}
-
-/* Panels: deep bar-gold paper look */
-.panel {
-  background: linear-gradient(180deg, var(--paper-gold-deep), var(--paper-gold-dark));
-  border-radius: var(--ui-radius);
-  padding: 16px;
-  border: 1px solid var(--panel-border);
-  box-shadow: var(--shadow-strong);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,245,210,0.92));
   color: var(--text-black);
+  font-size: 15px;
   font-weight: 700;
+  outline: none;
+  transition: 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(0,0,0,0.08);
 }
 
-/* Make center editor panel slightly lighter for readability */
-.panel-center {
-  background: linear-gradient(180deg, var(--paper-gold-mid), var(--paper-gold-deep));
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(212,176,74,0.35);
 }
 
-/* Left sidebar */
-.panel-left { overflow:auto; min-height:480px; }
-
-/* Center editor */
-.panel-center { display:flex; flex-direction:column; gap:12px; min-height:480px; }
-
-/* Right inspector */
-.panel-right { min-height:480px; }
-
-/* Header inputs: darker gold inputs with black text */
-.panel-header { display:flex; gap:12px; align-items:center; }
-.chapter-title-input {
-  flex:1;
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,0.10);
-  background: rgba(0,0,0,0.03);
-  color: var(--text-black);
-  font-size:18px;
-}
-.chapter-subtitle-input {
-  width:320px;
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,0.10);
-  background: rgba(0,0,0,0.03);
-  color: var(--text-black);
+/* Range sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 140px;
+  height: 6px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-/* Toolbar */
-.toolbar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:6px 0; }
-.tool-btn {
-  background: linear-gradient(180deg, var(--paper-gold-dark), var(--paper-gold-deep));
-  border: 1px solid rgba(0,0,0,0.08);
-  color: var(--text-black);
-  padding:6px 8px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:800;
-}
-.tool-select, .tool-range {
-  background: rgba(0,0,0,0.03);
-  color: var(--text-black);
-  border:1px solid rgba(0,0,0,0.08);
-  padding:6px 8px;
-  border-radius:8px;
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-gold);
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.4);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
-/* Editor: paper surface with black text (inner paper slightly lighter) */
-.editor {
-  flex:1;
-  min-height:420px;
-  padding:24px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,0.06);
-  background: linear-gradient(180deg, #fff6e0, #fff1d0);
-  color: var(--text-black);
-  overflow:auto;
-  outline:none;
-  font-size:16px;
-  line-height:1.6;
-  box-shadow: inset 0 1px 0 rgba(0,0,0,0.02);
-}
-
-/* placeholder text color */
-.editor:empty::before { content: attr(data-placeholder); color: rgba(0,0,0,0.28); }
-
-/* Stats: deep gold blocks behind labels */
-.stats-panel {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  padding:8px 12px;
-  border-radius:8px;
-  background: linear-gradient(180deg, rgba(180,130,30,0.20), rgba(180,130,30,0.14));
-  color: var(--text-black);
-}
-
-/* Tree: deep gold blocks behind node labels */
-.tree-block { margin-bottom:14px; }
-.tree-block h4 { margin:0 0 8px 0; font-size:13px; color:var(--text-black); font-weight:900; }
-.tree-node {
-  padding:10px 12px;
-  border-radius:8px;
-  cursor:pointer;
-  color: var(--text-black);
-  background: linear-gradient(180deg, rgba(180,130,30,0.16), rgba(180,130,30,0.08));
-  margin-bottom:8px;
-  border: 1px solid rgba(0,0,0,0.06);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-}
-.tree-node:hover { background: linear-gradient(180deg, rgba(180,130,30,0.24), rgba(180,130,30,0.12)); }
-
-/* Add buttons */
-.tree-add-part, .tree-add-chapter {
-  margin:8px 0;
-  padding:8px 10px;
-  border-radius:8px;
+/* Sidebar Add Buttons */
+.sidebar-add-btn,
+.tree-add-front,
+.tree-add-back,
+.tree-add-part,
+.tree-add-chapter {
+  padding: 8px 12px;
+  border-radius: 8px;
   background: linear-gradient(180deg, var(--paper-gold-dark), var(--accent-gold));
-  border:none;
+  border: 1px solid rgba(0,0,0,0.25);
   color: var(--text-black);
-  cursor:pointer;
-  font-weight:800;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
-/* Inspector */
-.inspector-heading { margin:0 0 12px 0; color:var(--text-black); font-size:16px; font-weight:800; }
-.inspector-row { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-.inspector-row label { font-size:12px; color:rgba(0,0,0,0.75); font-weight:800; }
-.inspector-value {
-  background: rgba(255,255,255,0.94);
-  padding:10px 12px;
-  border-radius:8px;
-  color:var(--text-black);
-  border:1px solid rgba(0,0,0,0.06);
-  min-height:32px;
-  display:flex;
-  align-items:center;
-  font-weight:700;
+.sidebar-add-btn:hover,
+.tree-add-front:hover,
+.tree-add-back:hover,
+.tree-add-part:hover,
+.tree-add-chapter:hover {
+  background: linear-gradient(180deg, var(--accent-gold), var(--paper-gold-mid));
+  transform: translateY(-1px);
 }
 
-/* Inspector actions */
-.inspector-actions { display:flex; gap:8px; margin-top:8px; }
-.dock-btn {
-  padding:10px 12px;
-  border-radius:8px;
-  border:none;
-  background: linear-gradient(180deg, var(--paper-gold-deep), var(--accent-gold));
-  color:#111;
-  cursor:pointer;
-  font-weight:800;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-}
-
-/* Scene break style */
-.scene-break { margin:12px 0; text-align:center; color:rgba(0,0,0,0.6); }
-
-/* Empty state */
-.empty-state { text-align:center; color:rgba(0,0,0,0.75); padding:20px; font-weight:700; }
-
-/* Responsive */
-@media (max-width: 1100px) {
-  .writer-layout { grid-template-columns: 280px 1fr; }
-  .panel-right { display:none; } /* hide inspector on smaller screens */
-}
-@media (max-width: 720px) {
-  .writer-layout { grid-template-columns: 1fr; padding:18px; gap:12px; }
-  .chapter-subtitle-input { width:100%; }
-  .brand-btn { display:none; }
+/* Inspector values (editable fields if needed) */
+.inspector-value input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-black);
+  outline: none;
 }
