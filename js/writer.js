@@ -1,10 +1,12 @@
 // /js/writer.js
-// Boardwalk Writer page logic (module)
-// - IndexedDB primary storage (boardwalk-db / books / meta)
-// - localStorage fallback
-// - Autosave, manual save, export/import, image compression
-// - Keeps same DOM IDs as your HTML
+// Boardwalk Writer — full logic with:
+// - IndexedDB + localStorage fallback
+// - Front/Back matter add-ons
+// - Auto Table of Contents
+// - Focus mode
+// - Autosave, stats, inspector, preview, publish
 
+// ---------- CONFIG ----------
 const DB_NAME = 'boardwalk-db';
 const DB_VERSION = 1;
 const BOOK_STORE = 'books';
@@ -14,41 +16,44 @@ const LS_CURRENT_KEY = 'currentBook';
 const AUTO_SAVE_DELAY = 800;
 const AUTO_SAVE_INTERVAL = 30000;
 
-// DOM helper
+// ---------- DOM HELPERS ----------
 const $ = id => document.getElementById(id);
 
-// UI elements (may be null if markup differs)
+// Layout
 const leftSidebar = $('leftSidebar');
 const editorContent = $('editorContent');
 const titleInput = $('chapterTitle');
 const subtitleInput = $('chapterSubtitle');
 
+// Toolbar
 const fontFamilySelect = $('fontFamilySelect');
 const fontSizeSelect = $('fontSizeSelect');
 const lineSpaceSelect = $('lineSpaceSelect');
 const letterSpaceSelect = $('letterSpaceSelect');
 const insertSceneBreak = $('insertSceneBreak');
 
+// Stats / inspector
 const wordStats = $('wordStats');
 const saveIndicator = $('saveIndicator');
-
 const inspectorTitle = $('inspectorTitle');
 const inspectorSubtitle = $('inspectorSubtitle');
 const inspectorWords = $('inspectorWords');
 const inspectorChapters = $('inspectorChapters');
 const inspectorSaved = $('inspectorSaved');
 
+// Actions
 const saveBtn = $('saveBtn');
 const previewBtn = $('previewBtn');
 const publishBtn = $('publishBtn');
+const focusModeBtn = $('focusModeBtn'); // optional button in HTML
 
-// ---------- IndexedDB wrapper ----------
+// ---------- IndexedDB ----------
 function openDB() {
   return new Promise((resolve, reject) => {
     if (!window.indexedDB) return reject(new Error('IndexedDB not supported'));
     const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = (ev) => {
-      const db = ev.target.result;
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
       if (!db.objectStoreNames.contains(BOOK_STORE)) {
         const store = db.createObjectStore(BOOK_STORE, { keyPath: 'id' });
         store.createIndex('byTitle', 'title', { unique: false });
@@ -69,14 +74,14 @@ function requestToPromise(req) {
   });
 }
 
-async function withIDB(txMode, callback) {
+async function withIDB(mode, cb) {
   const db = await openDB();
-  const tx = db.transaction([BOOK_STORE, META_STORE], txMode);
+  const tx = db.transaction([BOOK_STORE, META_STORE], mode);
   const stores = {
     books: tx.objectStore(BOOK_STORE),
     meta: tx.objectStore(META_STORE)
   };
-  const result = await callback(stores);
+  const result = await cb(stores);
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve(result);
     tx.onerror = () => reject(tx.error);
@@ -90,14 +95,13 @@ function lsGetBooks() {
 }
 function lsSaveBooks(arr) { localStorage.setItem(LS_BOOKS_KEY, JSON.stringify(arr)); }
 function lsGetCurrent() { return localStorage.getItem(LS_CURRENT_KEY); }
-function lsSetCurrent(id) { if (id == null) localStorage.removeItem(LS_CURRENT_KEY); else localStorage.setItem(LS_CURRENT_KEY, id); }
+function lsSetCurrent(id) { id == null ? localStorage.removeItem(LS_CURRENT_KEY) : localStorage.setItem(LS_CURRENT_KEY, id); }
 
 // ---------- Storage API ----------
 async function listBooks() {
   try {
-    return await withIDB('readonly', async (stores) => requestToPromise(stores.books.getAll()));
-  } catch (e) {
-    console.warn('listBooks: falling back to localStorage', e);
+    return await withIDB('readonly', s => requestToPromise(s.books.getAll()));
+  } catch {
     return lsGetBooks();
   }
 }
@@ -105,23 +109,21 @@ async function listBooks() {
 async function getBook(id) {
   if (!id) return null;
   try {
-    return await withIDB('readonly', async (stores) => requestToPromise(stores.books.get(id)));
-  } catch (e) {
-    const books = lsGetBooks();
-    return books.find(b => b.id === id) || null;
+    return await withIDB('readonly', s => requestToPromise(s.books.get(id)));
+  } catch {
+    return lsGetBooks().find(b => b.id === id) || null;
   }
 }
 
 async function saveBook(book) {
   if (!book || !book.id) throw new Error('Book must have an id');
   try {
-    return await withIDB('readwrite', async (stores) => {
-      await requestToPromise(stores.books.put(book));
-      await requestToPromise(stores.meta.put({ key: 'currentBook', value: book.id }));
+    return await withIDB('readwrite', async s => {
+      await requestToPromise(s.books.put(book));
+      await requestToPromise(s.meta.put({ key: 'currentBook', value: book.id }));
       return book;
     });
-  } catch (e) {
-    console.warn('saveBook: falling back to localStorage', e);
+  } catch {
     const books = lsGetBooks();
     const idx = books.findIndex(b => b.id === book.id);
     if (idx === -1) books.push(book); else books[idx] = book;
@@ -133,13 +135,13 @@ async function saveBook(book) {
 
 async function deleteBook(id) {
   try {
-    return await withIDB('readwrite', async (stores) => {
-      await requestToPromise(stores.books.delete(id));
-      const cur = await requestToPromise(stores.meta.get('currentBook'));
-      if (cur && cur.value === id) await requestToPromise(stores.meta.delete('currentBook'));
+    return await withIDB('readwrite', async s => {
+      await requestToPromise(s.books.delete(id));
+      const cur = await requestToPromise(s.meta.get('currentBook'));
+      if (cur && cur.value === id) await requestToPromise(s.meta.delete('currentBook'));
       return true;
     });
-  } catch (e) {
+  } catch {
     const books = lsGetBooks().filter(b => b.id !== id);
     lsSaveBooks(books);
     if (lsGetCurrent() === id) lsSetCurrent(null);
@@ -149,8 +151,8 @@ async function deleteBook(id) {
 
 async function getCurrentBookId() {
   try {
-    return await withIDB('readonly', async (stores) => {
-      const rec = await requestToPromise(stores.meta.get('currentBook'));
+    return await withIDB('readonly', async s => {
+      const rec = await requestToPromise(s.meta.get('currentBook'));
       return rec ? rec.value : null;
     });
   } catch {
@@ -160,9 +162,9 @@ async function getCurrentBookId() {
 
 async function setCurrentBookId(id) {
   try {
-    return await withIDB('readwrite', async (stores) => {
-      if (id == null) await requestToPromise(stores.meta.delete('currentBook'));
-      else await requestToPromise(stores.meta.put({ key: 'currentBook', value: id }));
+    return await withIDB('readwrite', async s => {
+      if (id == null) await requestToPromise(s.meta.delete('currentBook'));
+      else await requestToPromise(s.meta.put({ key: 'currentBook', value: id }));
       return id;
     });
   } catch {
@@ -171,96 +173,49 @@ async function setCurrentBookId(id) {
   }
 }
 
-// ---------- Image compression ----------
-async function compressImageFile(file, maxWidth = 1200, quality = 0.78) {
-  if (!file) return null;
-  if (!file.type || !file.type.startsWith('image/')) return file;
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > maxWidth) {
-        const ratio = maxWidth / width;
-        width = maxWidth;
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-      canvas.toBlob((blob) => {
-        URL.revokeObjectURL(url);
-        if (!blob || blob.size >= file.size) resolve(file);
-        else resolve(new File([blob], file.name, { type: blob.type }));
-      }, 'image/jpeg', quality);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
-    img.src = url;
-  });
-}
-
-// ---------- Utilities ----------
+// ---------- Utils ----------
 function uid(prefix = 'id') {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
 }
 function escapeHtml(str = '') {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
 }
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    if (!blob) return resolve(null);
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
-function base64ToBlob(dataURL) {
-  if (!dataURL) return null;
-  const parts = dataURL.split(',');
-  const meta = parts[0].match(/:(.*?);/);
-  const mime = meta ? meta[1] : 'application/octet-stream';
-  const bstr = atob(parts[1]);
-  let n = bstr.length;
-  const u8 = new Uint8Array(n);
-  while (n--) u8[n] = bstr.charCodeAt(n);
-  return new Blob([u8], { type: mime });
+function countWordsFromHtml(input = '') {
+  if (input == null) return 0;
+  if (typeof input !== 'string') input = String(input);
+  const text = input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!text) return 0;
+  return text.split(' ').filter(Boolean).length;
 }
 
 // ---------- App state ----------
 let currentPage = null;
 let autoSaveTimer = null;
 
-// ---------- Initialization ----------
+// ---------- Init ----------
 async function init() {
   try {
     let books = await listBooks();
     if (!books || !books.length) {
-      const demo = {
-        id: uid('book'),
-        title: 'Untitled Book',
-        author: '',
-        created: new Date().toISOString(),
-        structure: {
-          frontMatter: [{ id: 'titlePage', type: 'page', label: 'Title Page', subtitle: '', content: '' }],
-          parts: [{ id: 'part1', type: 'part', label: 'Part 1', subtitle: '', chapters: [{ id: 'part1-ch1', type: 'chapter', label: 'Chapter 1', subtitle: '', content: '<p>Start writing...</p>' }] }],
-          backMatter: []
-        }
-      };
+      const demo = createDemoBook();
       await saveBook(demo);
       await setCurrentBookId(demo.id);
       books = [demo];
     }
 
     await renderSidebar();
+
     const currentId = await getCurrentBookId();
     const book = currentId ? await getBook(currentId) : (books[0] || null);
     if (book) {
       await ensureBookStructure(book);
-      const first = (book.structure.frontMatter && book.structure.frontMatter[0]) || (book.structure.parts && book.structure.parts[0] && book.structure.parts[0].chapters && book.structure.parts[0].chapters[0]) || null;
-      if (first) loadPage(first.id);
+      const first = getFirstPage(book.structure);
+      if (first) await loadPage(first.id);
     }
 
     applyEditorSettings();
@@ -269,8 +224,37 @@ async function init() {
 
     setInterval(() => persistCurrentPage(), AUTO_SAVE_INTERVAL);
   } catch (err) {
-    console.error('Init error', err);
+    console.error('Writer init error', err);
   }
+}
+
+function createDemoBook() {
+  return {
+    id: uid('book'),
+    title: 'Untitled Book',
+    author: '',
+    created: new Date().toISOString(),
+    structure: {
+      frontMatter: [
+        { id: 'fm-title', type: 'front', label: 'Title Page', subtitle: '', content: '' },
+        { id: 'fm-toc', type: 'toc', label: 'Table of Contents', subtitle: '', content: '' }
+      ],
+      parts: [
+        {
+          id: 'part1',
+          type: 'part',
+          label: 'Part 1',
+          subtitle: '',
+          chapters: [
+            { id: 'part1-ch1', type: 'chapter', label: 'Chapter 1', subtitle: '', content: '<p>Start writing...</p>' }
+          ]
+        }
+      ],
+      backMatter: [
+        { id: 'bm-about', type: 'back', label: 'About the Author', subtitle: '', content: '' }
+      ]
+    }
+  };
 }
 
 // ---------- Structure helpers ----------
@@ -279,25 +263,38 @@ async function ensureBookStructure(book) {
     book.structure = { frontMatter: [], parts: [], backMatter: [] };
     await saveBook(book);
   }
+  book.structure.frontMatter ||= [];
+  book.structure.parts ||= [];
+  book.structure.backMatter ||= [];
+}
+
+function getFirstPage(structure) {
+  return (structure.frontMatter && structure.frontMatter[0]) ||
+         (structure.parts && structure.parts[0] && structure.parts[0].chapters && structure.parts[0].chapters[0]) ||
+         (structure.backMatter && structure.backMatter[0]) ||
+         null;
 }
 
 function findPageById(structure, id) {
   if (!structure) return null;
-  let p = (structure.frontMatter || []).find(x => x.id === id); if (p) return p;
+  let p = (structure.frontMatter || []).find(x => x.id === id);
+  if (p) return p;
   for (const part of (structure.parts || [])) {
     if (part.id === id) return part;
-    const ch = (part.chapters || []).find(c => c.id === id); if (ch) return ch;
+    const ch = (part.chapters || []).find(c => c.id === id);
+    if (ch) return ch;
   }
-  p = (structure.backMatter || []).find(x => x.id === id); return p || null;
+  p = (structure.backMatter || []).find(x => x.id === id);
+  return p || null;
 }
 
-// ---------- Sidebar rendering ----------
+// ---------- Sidebar ----------
 async function renderSidebar() {
   if (!leftSidebar) return;
   const bookId = await getCurrentBookId();
   const book = bookId ? await getBook(bookId) : null;
   if (!book) {
-    leftSidebar.innerHTML = `<div class="empty-state">No active book. Open the library.</div>`;
+    leftSidebar.innerHTML = `<div class="empty-state">No active book.</div>`;
     return;
   }
   await ensureBookStructure(book);
@@ -306,47 +303,167 @@ async function renderSidebar() {
 }
 
 function buildTreeHtml(structure) {
-  let html = `<div class="tree-block"><h4>Front Matter</h4><ul>`;
-  (structure.frontMatter || []).forEach(p => html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`);
-  html += `</ul></div>`;
+  let html = '';
 
+  // Front matter
+  html += `<div class="tree-block"><h4>Front Matter</h4><ul>`;
+  (structure.frontMatter || []).forEach(p => {
+    html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`;
+  });
+  html += `</ul><button class="tree-add-front">+ Add Front Matter Page</button></div>`;
+
+  // Parts / chapters
   html += `<div class="tree-block"><h4>Parts</h4><button class="tree-add-part">+ Add Part</button><div class="parts">`;
   (structure.parts || []).forEach(part => {
-    html += `<div class="part" data-id="${part.id}"><div class="part-label" data-id="${part.id}">${escapeHtml(part.label)}</div>`;
-    html += `<button class="tree-add-chapter" data-part="${part.id}">+ Chapter</button><ul>`;
-    (part.chapters || []).forEach(ch => html += `<li data-id="${ch.id}" class="tree-node">${escapeHtml(ch.label)}</li>`);
+    html += `<div class="part" data-id="${part.id}">
+      <div class="part-label tree-node" data-id="${part.id}">${escapeHtml(part.label)}</div>
+      <button class="tree-add-chapter" data-part="${part.id}">+ Add Chapter</button>
+      <ul>`;
+    (part.chapters || []).forEach(ch => {
+      html += `<li data-id="${ch.id}" class="tree-node">${escapeHtml(ch.label)}</li>`;
+    });
     html += `</ul></div>`;
   });
   html += `</div></div>`;
 
+  // Back matter
   html += `<div class="tree-block"><h4>Back Matter</h4><ul>`;
-  (structure.backMatter || []).forEach(p => html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`);
-  html += `</ul></div>`;
+  (structure.backMatter || []).forEach(p => {
+    html += `<li data-id="${p.id}" class="tree-node">${escapeHtml(p.label)}</li>`;
+  });
+  html += `</ul><button class="tree-add-back">+ Add Back Matter Page</button></div>`;
+
   return html;
 }
 
 function attachSidebarEvents() {
   if (!leftSidebar) return;
-  leftSidebar.querySelectorAll('.tree-node').forEach(el => el.onclick = () => loadPage(el.dataset.id));
-  leftSidebar.querySelectorAll('.tree-add-part').forEach(btn => btn.onclick = addPart);
-  leftSidebar.querySelectorAll('.tree-add-chapter').forEach(btn => btn.onclick = () => addChapter(btn.dataset.part));
+
+  leftSidebar.querySelectorAll('.tree-node').forEach(el => {
+    el.onclick = () => loadPage(el.dataset.id);
+  });
+
+  const addPartBtn = leftSidebar.querySelector('.tree-add-part');
+  if (addPartBtn) addPartBtn.onclick = addPart;
+
+  leftSidebar.querySelectorAll('.tree-add-chapter').forEach(btn => {
+    btn.onclick = () => addChapter(btn.dataset.part);
+  });
+
+  const addFrontBtn = leftSidebar.querySelector('.tree-add-front');
+  if (addFrontBtn) addFrontBtn.onclick = addFrontMatterPage;
+
+  const addBackBtn = leftSidebar.querySelector('.tree-add-back');
+  if (addBackBtn) addBackBtn.onclick = addBackMatterPage;
 }
 
-// ---------- Page load / save ----------
+// ---------- Add pages ----------
+async function addFrontMatterPage() {
+  const bookId = await getCurrentBookId();
+  if (!bookId) return;
+  const book = await getBook(bookId);
+  if (!book) return;
+
+  book.structure.frontMatter ||= [];
+  const idx = book.structure.frontMatter.length + 1;
+  const page = {
+    id: `fm-${idx}-${uid('page')}`,
+    type: 'front',
+    label: `Front Page ${idx}`,
+    subtitle: '',
+    content: ''
+  };
+  book.structure.frontMatter.push(page);
+  await saveBook(book);
+  await renderSidebar();
+  await loadPage(page.id);
+}
+
+async function addBackMatterPage() {
+  const bookId = await getCurrentBookId();
+  if (!bookId) return;
+  const book = await getBook(bookId);
+  if (!book) return;
+
+  book.structure.backMatter ||= [];
+  const idx = book.structure.backMatter.length + 1;
+  const page = {
+    id: `bm-${idx}-${uid('page')}`,
+    type: 'back',
+    label: `Back Page ${idx}`,
+    subtitle: '',
+    content: ''
+  };
+  book.structure.backMatter.push(page);
+  await saveBook(book);
+  await renderSidebar();
+  await loadPage(page.id);
+}
+
+async function addPart() {
+  const bookId = await getCurrentBookId();
+  if (!bookId) return;
+  const book = await getBook(bookId);
+  if (!book) return;
+
+  book.structure.parts ||= [];
+  const idx = book.structure.parts.length + 1;
+  const part = {
+    id: `part${idx}`,
+    type: 'part',
+    label: `Part ${idx}`,
+    subtitle: '',
+    chapters: []
+  };
+  book.structure.parts.push(part);
+  await saveBook(book);
+  await renderSidebar();
+  await loadPage(part.id);
+}
+
+async function addChapter(partId) {
+  const bookId = await getCurrentBookId();
+  if (!bookId) return;
+  const book = await getBook(bookId);
+  if (!book) return;
+
+  const part = (book.structure.parts || []).find(p => p.id === partId);
+  if (!part) return;
+
+  part.chapters ||= [];
+  const num = part.chapters.length + 1;
+  const chapter = {
+    id: `${partId}-ch${num}`,
+    type: 'chapter',
+    label: `Chapter ${num}`,
+    subtitle: '',
+    content: ''
+  };
+  part.chapters.push(chapter);
+  await saveBook(book);
+  await renderSidebar();
+  await loadPage(chapter.id);
+}
+
+// ---------- Load / Save page ----------
 async function loadPage(id) {
   const bookId = await getCurrentBookId();
   if (!bookId) return;
   const book = await getBook(bookId);
   if (!book || !book.structure) return;
+
   const page = findPageById(book.structure, id);
   if (!page) return;
+
   currentPage = page;
 
   if (titleInput) titleInput.value = page.label || '';
   if (subtitleInput) subtitleInput.value = page.subtitle || '';
-  if (editorContent) editorContent.innerHTML = (typeof page.content === 'string') ? page.content : (page.content == null ? '' : String(page.content));
+  if (editorContent) editorContent.innerHTML = page.content || '';
 
-  if (page.type === 'toc') generateTOC();
+  if (page.type === 'toc') {
+    await generateTOC(book);
+  }
 
   updateWordStats();
   refreshInspector();
@@ -369,7 +486,11 @@ async function persistCurrentPage() {
   const now = new Date().toLocaleString();
   if (saveIndicator) saveIndicator.textContent = `Saved ${now}`;
   if (inspectorSaved) inspectorSaved.textContent = now;
+
   updateWordStats();
+
+  // Keep TOC in sync if it exists
+  await refreshTOCIfPresent(book);
 }
 
 function scheduleAutoSave() {
@@ -378,67 +499,36 @@ function scheduleAutoSave() {
   autoSaveTimer = setTimeout(() => persistCurrentPage(), AUTO_SAVE_DELAY);
 }
 
-// ---------- Add / Edit structure ----------
-async function addPart() {
-  const bookId = await getCurrentBookId();
-  if (!bookId) return;
-  const book = await getBook(bookId);
-  if (!book) return;
-  book.structure.parts = book.structure.parts || [];
-  const idx = book.structure.parts.length + 1;
-  const newPart = { id: `part${idx}`, type: 'part', label: `Part ${idx}`, subtitle: '', chapters: [] };
-  book.structure.parts.push(newPart);
-  await saveBook(book);
-  await renderSidebar();
-  loadPage(newPart.id);
-}
-
-async function addChapter(partId) {
-  const bookId = await getCurrentBookId();
-  if (!bookId) return;
-  const book = await getBook(bookId);
-  if (!book) return;
-  const part = (book.structure.parts || []).find(p => p.id === partId);
-  if (!part) return;
-  part.chapters = part.chapters || [];
-  const num = part.chapters.length + 1;
-  const newChapter = { id: `${partId}-ch${num}`, type: 'chapter', label: `Chapter ${num}`, subtitle: '', content: '' };
-  part.chapters.push(newChapter);
-  await saveBook(book);
-  await renderSidebar();
-  loadPage(newChapter.id);
-}
-
-// ---------- TOC & metrics ----------
-async function generateTOC() {
-  const bookId = await getCurrentBookId();
-  if (!bookId) return;
-  const book = await getBook(bookId);
-  if (!book) return;
+// ---------- TOC ----------
+async function generateTOC(book) {
+  if (!book || !book.structure) return;
   let html = '';
-  (book.structure.parts || []).forEach(part => {
-    html += `<h3>${escapeHtml(part.label)}</h3>`;
-    (part.chapters || []).forEach(ch => {
-      html += `<p>${escapeHtml(ch.label)}${ch.subtitle ? ' — ' + escapeHtml(ch.subtitle) : ''}</p>`;
+
+  (book.structure.parts || []).forEach((part, pIndex) => {
+    html += `<h3>Part ${pIndex + 1}: ${escapeHtml(part.label)}</h3>`;
+    (part.chapters || []).forEach((ch, cIndex) => {
+      html += `<p>${pIndex + 1}.${cIndex + 1} ${escapeHtml(ch.label)}${ch.subtitle ? ' — ' + escapeHtml(ch.subtitle) : ''}</p>`;
     });
   });
-  if (currentPage) {
-    currentPage.content = html;
-    if (editorContent) editorContent.innerHTML = html;
-    await persistCurrentPage();
+
+  const tocPage = (book.structure.frontMatter || []).find(p => p.type === 'toc') ||
+                  (book.structure.frontMatter || []).find(p => p.id === 'fm-toc');
+
+  if (tocPage) {
+    tocPage.content = html;
+    if (currentPage && currentPage.id === tocPage.id && editorContent) {
+      editorContent.innerHTML = html;
+    }
+    await saveBook(book);
   }
 }
 
-function countWordsFromHtml(input = '') {
-  if (input == null) return 0;
-  if (typeof input !== 'string') {
-    try { input = String(input); } catch { input = ''; }
-  }
-  const text = input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  if (!text) return 0;
-  return text.split(' ').filter(Boolean).length;
+async function refreshTOCIfPresent(book) {
+  const hasTOC = (book.structure.frontMatter || []).some(p => p.type === 'toc' || p.id === 'fm-toc');
+  if (hasTOC) await generateTOC(book);
 }
 
+// ---------- Stats ----------
 async function updateWordStats() {
   if (!wordStats) return;
   const bookId = await getCurrentBookId();
@@ -466,18 +556,18 @@ async function updateWordStats() {
 
   const liveWords = editorContent ? countWordsFromHtml(editorContent.innerHTML || '') : 0;
 
-  if (currentPage) {
-    if (currentPage.type === 'chapter') {
-      const storedChapter = (book.structure.parts || []).flatMap(p => p.chapters || []).find(c => c.id === currentPage.id);
-      if (storedChapter) {
-        const stored = countWordsFromHtml(storedChapter.content || '');
-        totalWords = totalWords - stored + liveWords;
-      } else {
-        totalWords += liveWords;
-      }
+  if (currentPage && currentPage.type === 'chapter') {
+    const storedChapter = (book.structure.parts || [])
+      .flatMap(p => p.chapters || [])
+      .find(c => c.id === currentPage.id);
+    if (storedChapter) {
+      const stored = countWordsFromHtml(storedChapter.content || '');
+      totalWords = totalWords - stored + liveWords;
     } else {
       totalWords += liveWords;
     }
+  } else {
+    totalWords += liveWords;
   }
 
   wordStats.textContent = `Words: ${totalWords.toLocaleString()} • Chapters: ${totalChapters}`;
@@ -485,12 +575,13 @@ async function updateWordStats() {
   if (inspectorChapters) inspectorChapters.textContent = String(totalChapters);
 }
 
-// ---------- Editor & toolbar ----------
+// ---------- Editor settings ----------
 function applyEditorSettings() {
   const size = fontSizeSelect ? fontSizeSelect.value : '16';
   const line = lineSpaceSelect ? lineSpaceSelect.value : '1.6';
   const letter = letterSpaceSelect ? letterSpaceSelect.value : '0';
   const family = fontFamilySelect ? fontFamilySelect.value : '';
+
   if (editorContent) {
     editorContent.style.fontSize = `${size}px`;
     editorContent.style.lineHeight = line;
@@ -504,13 +595,16 @@ if (lineSpaceSelect) lineSpaceSelect.onchange = applyEditorSettings;
 if (letterSpaceSelect) letterSpaceSelect.oninput = applyEditorSettings;
 if (fontFamilySelect) fontFamilySelect.onchange = applyEditorSettings;
 
-if (insertSceneBreak) insertSceneBreak.onclick = () => {
-  const marker = document.createElement('div');
-  marker.className = 'scene-break';
-  marker.innerHTML = '<hr style="opacity:.25"><p style="text-align:center;opacity:.6">***</p><hr style="opacity:.25">';
-  insertNodeAtCaret(marker);
-  scheduleAutoSave();
-};
+// Scene break
+if (insertSceneBreak) {
+  insertSceneBreak.onclick = () => {
+    const marker = document.createElement('div');
+    marker.className = 'scene-break';
+    marker.innerHTML = '<hr style="opacity:.25"><p style="text-align:center;opacity:.6">***</p><hr style="opacity:.25">';
+    insertNodeAtCaret(marker);
+    scheduleAutoSave();
+  };
+}
 
 function insertNodeAtCaret(node) {
   if (!editorContent) return;
@@ -528,7 +622,23 @@ function insertNodeAtCaret(node) {
   sel.addRange(range);
 }
 
-// formatting toolbar
+// ---------- Editor events ----------
+if (editorContent) {
+  editorContent.addEventListener('input', () => {
+    scheduleAutoSave();
+    updateWordStats();
+  });
+}
+if (titleInput) titleInput.addEventListener('input', () => {
+  scheduleAutoSave();
+  refreshInspector();
+});
+if (subtitleInput) subtitleInput.addEventListener('input', () => {
+  scheduleAutoSave();
+  refreshInspector();
+});
+
+// Formatting toolbar (bold/italic/underline)
 document.querySelectorAll('[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => {
     const cmd = btn.dataset.cmd;
@@ -538,72 +648,70 @@ document.querySelectorAll('[data-cmd]').forEach(btn => {
   });
 });
 
-// ---------- Editor events ----------
-if (editorContent) {
-  editorContent.addEventListener('input', () => { scheduleAutoSave(); updateWordStats(); });
-}
-if (titleInput) titleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
-if (subtitleInput) subtitleInput.addEventListener('input', () => { scheduleAutoSave(); refreshInspector(); });
-
 // ---------- Inspector ----------
 function refreshInspector() {
   if (inspectorTitle) inspectorTitle.textContent = (titleInput ? titleInput.value : '') || '—';
   if (inspectorSubtitle) inspectorSubtitle.textContent = (subtitleInput ? subtitleInput.value : '') || '—';
 }
 
-// ---------- Save / preview / publish ----------
-if (saveBtn) saveBtn.addEventListener('click', () => { persistCurrentPage(); });
-if (previewBtn) previewBtn.addEventListener('click', () => {
-  if (!editorContent) return;
-  const html = `<html><head><title>${escapeHtml(titleInput ? titleInput.value || 'Preview' : 'Preview')}</title><style>body{font-family:Inter,system-ui;padding:40px;background:#fff;color:#111}</style></head><body><h1>${escapeHtml(titleInput ? titleInput.value || '' : '')}</h1><h3>${escapeHtml(subtitleInput ? subtitleInput.value || '' : '')}</h3>${editorContent.innerHTML}</body></html>`;
-  const w = window.open('', '_blank'); if (w) { w.document.open(); w.document.write(html); w.document.close(); }
-});
-if (publishBtn) publishBtn.addEventListener('click', async () => { await persistCurrentPage(); window.location.href = '../pages/publish.html'; });
-
-// ---------- Export / Import ----------
-async function exportBooksToBlob() {
-  const books = await listBooks();
-  const serialized = await Promise.all(books.map(async (b) => {
-    const copy = JSON.parse(JSON.stringify(b));
-    if (b.cover && (b.cover instanceof Blob || b.cover instanceof File)) {
-      copy.cover = await blobToBase64(b.cover);
-    }
-    return copy;
-  }));
-  return new Blob([JSON.stringify(serialized, null, 2)], { type: 'application/json' });
-}
-
-async function importBooksFromFile(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const parsed = JSON.parse(reader.result);
-        if (!Array.isArray(parsed)) throw new Error('Invalid import format');
-        for (const b of parsed) {
-          if (b.cover && typeof b.cover === 'string' && b.cover.startsWith('data:')) {
-            b.cover = base64ToBlob(b.cover);
-          }
-          if (!b.id) b.id = uid('book');
-          await saveBook(b);
-        }
-        await renderSidebar();
-        resolve(true);
-      } catch (e) { reject(e); }
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsText(file);
+// ---------- Focus mode ----------
+if (focusModeBtn) {
+  focusModeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('focus-mode');
   });
 }
 
-// ---------- Public API & init ----------
+// ---------- Save / Preview / Publish ----------
+if (saveBtn) {
+  saveBtn.addEventListener('click', () => {
+    persistCurrentPage();
+  });
+}
+
+if (previewBtn) {
+  previewBtn.addEventListener('click', () => {
+    if (!editorContent) return;
+    const title = titleInput ? titleInput.value || 'Preview' : 'Preview';
+    const subtitle = subtitleInput ? subtitleInput.value || '' : '';
+    const html = `
+      <html>
+        <head>
+          <title>${escapeHtml(title)}</title>
+          <style>
+            body{font-family:Inter,system-ui;padding:40px;background:#fff;color:#111;max-width:700px;margin:0 auto;}
+            h1{margin-bottom:0.25em;}
+            h3{margin-top:0;color:#666;font-weight:400;}
+          </style>
+        </head>
+        <body>
+          <h1>${escapeHtml(title)}</h1>
+          ${subtitle ? `<h3>${escapeHtml(subtitle)}</h3>` : ''}
+          ${editorContent.innerHTML}
+        </body>
+      </html>`;
+    const w = window.open('', '_blank');
+    if (w) {
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+    }
+  });
+}
+
+if (publishBtn) {
+  publishBtn.addEventListener('click', async () => {
+    await persistCurrentPage();
+    window.location.href = '../pages/publish.html';
+  });
+}
+
+// ---------- Public API ----------
 window.BoardwalkWriter = {
   listBooks,
   getBook,
   saveBook,
-  deleteBook,
-  exportBooksToBlob,
-  importBooksFromFile
+  deleteBook
 };
 
+// ---------- Start ----------
 init().catch(err => console.error('Writer init failed', err));
