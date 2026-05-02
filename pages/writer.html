@@ -121,17 +121,21 @@
         <button id="publishBtn" class="dock-btn">🚀 Publish</button>
       </div>
 
-      <!-- Logo placed under the Publish button, inside the right inspector.
-           It is part of the document flow (not fixed) so it scrolls with the page
-           and will not overlap inspector controls. Adjust width as needed. -->
-      <div class="inspector-logo" aria-hidden="true" style="display:flex;justify-content:flex-end;margin-top:14px;">
-        <img src="../img/publish-logo.jpg" alt="" style="width:96px;height:auto;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.35);" />
-      </div>
-
     </aside>
 
   </div>
 
+  <!-- Logo placed in its own container below the main app.
+       It is NOT fixed; it sits in the normal document flow and will scroll with the page.
+       The container is full-width and aligns the logo to the right so it occupies the bottom-right area
+       without being inside the inspector or overlapping inspector controls. -->
+  <div style="width:100%; box-sizing:border-box; padding:12px 18px 40px 18px; display:flex; justify-content:flex-end; align-items:flex-end;">
+    <div aria-hidden="true" style="width:96px; flex:0 0 96px; margin-left:12px;">
+      <img src="../img/publish-logo.jpg" alt="Boardwalk logo" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.35);" />
+    </div>
+  </div>
+
+  <!-- Correct relative path to the writer script (script lives in ../js relative to this page) -->
   <script type="module" src="../js/writer.js"></script>
 </body>
 </html>
