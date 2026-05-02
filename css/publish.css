@@ -3,56 +3,146 @@
   --red-light: #ff6b6b;
   --white: #ffffff;
   --radius: 14px;
+
+  --border: #d6d9e5;
+  --shadow: 0 10px 25px rgba(0,0,0,0.08);
+  --shadow-soft: 0 6px 14px rgba(0,0,0,0.06);
 }
 
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
   background: #f5f7fb;
-  display: flex;
   height: 100vh;
+  display: flex;
 }
 
+/* MAIN GRID */
 #publishApp {
   flex: 1;
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: 12px;
-  padding: 16px;
+  gap: 16px;
+  padding: 18px;
+  box-sizing: border-box;
 }
 
+/* PANELS */
 .panel {
   background: var(--white);
   border-radius: var(--radius);
-  padding: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  padding: 16px;
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
+  gap: 14px;
 }
 
 .panel-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--blue);
-  margin-bottom: 12px;
+  margin: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
 }
 
+/* CANVAS AREA */
 #canvasArea {
   background: #fff;
   border-radius: 12px;
-  border: 1px solid #d6d9e5;
+  border: 1px solid var(--border);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  box-shadow: var(--shadow-soft);
 }
 
+/* DRAGGABLE ELEMENTS */
 .draggable {
   position: absolute;
-  cursor: move;
+  cursor: grab;
   user-select: none;
+  padding: 4px;
+  border-radius: 6px;
 }
 
-.font-select {
+.draggable:active {
+  cursor: grabbing;
+}
+
+/* INPUTS */
+.font-select,
+input[type="text"],
+input[type="number"],
+select {
   width: 100%;
-  padding: 8px;
+  padding: 8px 10px;
   border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* BUTTONS */
+button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: 0.15s ease;
+}
+
+button:hover {
+  background: #09406f;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* SECTION LABELS */
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 4px;
+}
+
+/* FLEX UTILS */
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* PREVIEW BOX */
+#previewBox {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow-soft);
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* FIXED HEIGHT ALIGNMENT */
+.panel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
