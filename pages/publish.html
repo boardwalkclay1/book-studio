@@ -1,148 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <title>Boardwalk Book Studio — Publish</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- GLOBAL CSS -->
-  <link rel="stylesheet" href="../css/publish.css">
+  <link rel="stylesheet" href="../css/publish.css" />
 </head>
 <body>
 
-  <!-- Logo -->
-  <img src="../img/publish-logo.jpg" id="brandLogo"
-       onclick="window.location.href='../index.html'">
+<div id="publishApp">
 
-  <div id="app" class="publish-layout">
+  <!-- LEFT NAVIGATION -->
+  <aside id="publishNav" class="panel nav-panel">
+    <h2 class="panel-title">Publishing Tools</h2>
 
-    <!-- LEFT: BOOK SUMMARY + COVER -->
-    <section class="panel panel-left publish-left">
+    <button class="nav-btn" data-panel="trimPanel">Trim Sizes</button>
+    <button class="nav-btn" data-panel="isbnPanel">ISBN & Barcode</button>
+    <button class="nav-btn" data-panel="layoutPanel">Layout Modes</button>
+    <button class="nav-btn" data-panel="exportPanel">Export Options</button>
+    <button class="nav-btn" data-panel="analyticsPanel">Analytics</button>
+  </aside>
 
-      <div class="panel-header">
-        <h2 class="panel-title">Publish Book</h2>
+  <!-- MAIN CONTENT AREA -->
+  <main id="publishMain">
+
+    <!-- TRIM SIZE PANEL -->
+    <section id="trimPanel" class="panel hidden">
+      <h2 class="panel-title">Trim Size Presets</h2>
+      <div class="panel-body">
+        <select id="trimSelect" class="input">
+          <option value="6x9">KDP Paperback — 6 x 9</option>
+          <option value="5.5x8.5">Trade — 5.5 x 8.5</option>
+          <option value="8.5x11">Letter — 8.5 x 11</option>
+          <option value="comic">Comic — 7 x 10</option>
+        </select>
+        <button id="applyTrim" class="btn-gold">Apply Trim</button>
       </div>
-
-      <!-- BOOK META (TITLE, AUTHOR, GENRE, WORD COUNT, ETC.) -->
-      <div id="publishBookMeta" class="publish-meta"></div>
-
-      <!-- COVER -->
-      <div class="publish-cover-block">
-        <h3 class="sub-title">Cover</h3>
-
-        <div id="coverPreview" class="cover-preview">
-          <span class="cover-placeholder-text">No cover uploaded</span>
-        </div>
-
-        <input type="file" id="coverInput" accept="image/*" class="cover-input">
-        <button id="removeCoverBtn" class="btn">Remove Cover</button>
-      </div>
-
-      <!-- NOTES -->
-      <div class="publish-notes">
-        <h3 class="sub-title">Notes</h3>
-        <textarea id="publishNotes" class="publish-notes-input"
-          placeholder="Any special notes for printing, formatting, or distribution..."></textarea>
-      </div>
-
     </section>
 
-    <!-- RIGHT: EXPORT + SETTINGS -->
-    <section class="panel panel-right publish-right">
-
-      <div class="panel-header">
-        <h2 class="panel-title">Export & Settings</h2>
+    <!-- ISBN PANEL -->
+    <section id="isbnPanel" class="panel hidden">
+      <h2 class="panel-title">ISBN & Barcode</h2>
+      <div class="panel-body">
+        <input id="isbnInput" class="input" placeholder="Enter ISBN-13" />
+        <button id="generateBarcode" class="btn-gold">Generate Barcode</button>
+        <div id="barcodePreview" class="barcode-box"></div>
       </div>
-
-      <!-- EXPORT FORMAT -->
-      <div class="subpanel">
-        <h3 class="sub-title">Export Format</h3>
-
-        <div class="export-options">
-          <label class="export-option">
-            <input type="radio" name="exportFormat" value="pdf-print" checked>
-            <span>PDF — Print Ready</span>
-          </label>
-
-          <label class="export-option">
-            <input type="radio" name="exportFormat" value="pdf-digital">
-            <span>PDF — Digital</span>
-          </label>
-
-          <label class="export-option">
-            <input type="radio" name="exportFormat" value="epub">
-            <span>EPUB (eBook)</span>
-          </label>
-
-          <label class="export-option">
-            <input type="radio" name="exportFormat" value="docx">
-            <span>DOCX (Word)</span>
-          </label>
-
-          <label class="export-option">
-            <input type="radio" name="exportFormat" value="markdown">
-            <span>Markdown / Plain Text</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- PRINT SETTINGS -->
-      <div class="subpanel">
-        <h3 class="sub-title">Print Settings</h3>
-
-        <label class="field-label">Trim Size</label>
-        <select id="publishTrimSize" class="field-input">
-          <option value="5x8">5 x 8 in</option>
-          <option value="5.5x8.5">5.5 x 8.5 in</option>
-          <option value="6x9" selected>6 x 9 in</option>
-          <option value="8.5x11">8.5 x 11 in</option>
-        </select>
-
-        <label class="field-label">Interior</label>
-        <select id="publishInterior" class="field-input">
-          <option value="b&w" selected>Black & White</option>
-          <option value="color">Color</option>
-        </select>
-
-        <label class="field-label">Paper</label>
-        <select id="publishPaper" class="field-input">
-          <option value="cream" selected>Cream</option>
-          <option value="white">White</option>
-        </select>
-      </div>
-
-      <!-- COPYRIGHT / ISBN -->
-      <div class="subpanel">
-        <h3 class="sub-title">Copyright & ISBN</h3>
-
-        <label class="field-label">Publisher / Imprint</label>
-        <input id="publishImprint" class="field-input" placeholder="Your imprint or name">
-
-        <label class="field-label">ISBN (optional)</label>
-        <input id="publishISBN" class="field-input" placeholder="ISBN-13">
-
-        <label class="field-label">Year</label>
-        <input id="publishYear" class="field-input" placeholder="2026">
-      </div>
-
-      <!-- ACTION BUTTONS -->
-      <div class="publish-actions">
-        <button id="backToWriterBtn" class="btn">← Back to Writer</button>
-        <button id="previewExportBtn" class="btn">👁️ Preview Export</button>
-        <button id="downloadExportBtn" class="btn btn-gold">📦 Download File</button>
-        <button id="finalPublishBtn" class="btn btn-gold">🚀 Finalize & Mark as Published</button>
-      </div>
-
-      <!-- STATUS / LOG -->
-      <div id="publishStatus" class="publish-status">
-        Ready to export.
-      </div>
-
     </section>
 
-  </div>
+    <!-- LAYOUT MODES -->
+    <section id="layoutPanel" class="panel hidden">
+      <h2 class="panel-title">Layout Modes</h2>
+      <div class="panel-body">
+        <button class="layout-btn" data-mode="paperback">Paperback Mode</button>
+        <button class="layout-btn" data-mode="hardcover">Hardcover Mode</button>
+        <button class="layout-btn" data-mode="ebook">E‑Book Mode</button>
+        <button class="layout-btn" data-mode="comic">Comic Mode</button>
+      </div>
+    </section>
 
-  <!-- JS -->
-  <script src="../js/publish.js" type="module"></script>
+    <!-- EXPORT OPTIONS -->
+    <section id="exportPanel" class="panel hidden">
+      <h2 class="panel-title">Export Options</h2>
+      <div class="panel-body">
+        <button id="exportPDF" class="btn-gold">Export Print‑Ready PDF</button>
+        <button id="exportEPUB" class="btn-gold">Export EPUB 3</button>
+        <button id="exportKDP" class="btn-gold">Export KDP Package</button>
+      </div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section id="analyticsPanel" class="panel hidden">
+      <h2 class="panel-title">Book Analytics</h2>
+      <div class="panel-body">
+        <div id="analyticsWords" class="metric-box"></div>
+        <div id="analyticsChapters" class="metric-box"></div>
+        <div id="analyticsReadingTime" class="metric-box"></div>
+        <canvas id="pacingGraph"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+</div>
+
+<script type="module" src="../js/publish.js"></script>
 </body>
 </html>
