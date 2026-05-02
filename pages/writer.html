@@ -19,7 +19,7 @@
 </head>
 <body>
 
-  <!-- Background image loaded from HTML and pinned behind everything -->
+  <!-- Background image (decorative) -->
   <img src="../img/bp-back.jpg" alt="" aria-hidden="true" class="bg-img" />
 
   <div id="app" class="writer-layout">
@@ -31,54 +31,66 @@
     <main class="panel panel-center" role="main" aria-label="Editor">
 
       <!-- TITLE ROW -->
-      <div class="panel-header">
+      <div class="panel-header" style="display:flex;gap:12px;align-items:center;">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
         <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
       </div>
 
       <!-- TOOLBAR (formatting controls) -->
-      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar">
-        <button type="button" data-cmd="bold" class="tool-btn" title="Bold"><strong>B</strong></button>
-        <button type="button" data-cmd="italic" class="tool-btn" title="Italic"><em>I</em></button>
-        <button type="button" data-cmd="underline" class="tool-btn" title="Underline"><u>U</u></button>
+      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button type="button" data-cmd="bold" class="tool-btn" title="Bold"><strong>B</strong></button>
+          <button type="button" data-cmd="italic" class="tool-btn" title="Italic"><em>I</em></button>
+          <button type="button" data-cmd="underline" class="tool-btn" title="Underline"><u>U</u></button>
+        </div>
 
-        <label class="tool-label">Font</label>
-        <select id="fontFamilySelect" class="tool-select" title="Font family">
-          <option value="Inter, system-ui">Inter</option>
-          <option value="Georgia, serif">Georgia</option>
-          <option value="Times New Roman, serif">Times New Roman</option>
-          <option value="Arial, sans-serif">Arial</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label class="tool-label" style="margin:0 6px 0 0;">Font</label>
+          <select id="fontFamilySelect" class="tool-select" title="Font family">
+            <option value="Inter, system-ui">Inter</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="Times New Roman, serif">Times New Roman</option>
+            <option value="Arial, sans-serif">Arial</option>
+          </select>
+        </div>
 
-        <label class="tool-label">Size</label>
-        <select id="fontSizeSelect" class="tool-select" title="Font size">
-          <option value="14">14px</option>
-          <option value="16" selected>16px</option>
-          <option value="18">18px</option>
-          <option value="20">20px</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label class="tool-label" style="margin:0 6px 0 0;">Size</label>
+          <select id="fontSizeSelect" class="tool-select" title="Font size">
+            <option value="14">14px</option>
+            <option value="16" selected>16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+          </select>
+        </div>
 
-        <label class="tool-label">Line</label>
-        <select id="lineSpaceSelect" class="tool-select" title="Line spacing">
-          <option value="1.2">1.2</option>
-          <option value="1.5" selected>1.5</option>
-          <option value="1.8">1.8</option>
-          <option value="2.0">2.0</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label class="tool-label" style="margin:0 6px 0 0;">Line</label>
+          <select id="lineSpaceSelect" class="tool-select" title="Line spacing">
+            <option value="1.2">1.2</option>
+            <option value="1.5" selected>1.5</option>
+            <option value="1.8">1.8</option>
+            <option value="2.0">2.0</option>
+          </select>
+        </div>
 
-        <label class="tool-label">Letter</label>
-        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range" title="Letter spacing">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label class="tool-label" style="margin:0 6px 0 0;">Letter</label>
+          <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range" title="Letter spacing">
+        </div>
 
-        <button id="insertSceneBreak" class="btn btn-gold" type="button">Scene Break</button>
+        <div style="margin-left:auto; display:flex;align-items:center;">
+          <button id="insertSceneBreak" class="btn btn-gold" type="button" style="display:inline-flex;align-items:center;justify-content:center;">Scene Break</button>
+        </div>
       </div>
 
       <!-- EDITOR -->
-      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor" data-placeholder="Start writing your story...">
+      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor" data-placeholder="Start writing your story..." style="min-height:420px; padding:18px;">
         Start writing your story...
       </div>
 
       <!-- BOTTOM STATS -->
-      <div class="stats-panel">
+      <div class="stats-panel" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;">
         <div id="wordStats">Words: 0 • Chapters: 0</div>
         <div id="saveIndicator">Saved</div>
       </div>
@@ -86,8 +98,7 @@
     </main>
 
     <!-- RIGHT: inspector / current page box -->
-    <aside class="panel panel-right" id="rightInspector" role="complementary" aria-label="Page inspector">
-
+    <aside class="panel panel-right" id="rightInspector" role="complementary" aria-label="Page inspector" style="display:flex;flex-direction:column;gap:12px;">
       <h3 class="inspector-heading">Current Page</h3>
 
       <div class="inspector-row">
@@ -115,27 +126,25 @@
         <div id="inspectorSaved" class="inspector-value">—</div>
       </div>
 
-      <div class="inspector-actions">
-        <button id="saveBtn" class="dock-btn">💾 Save</button>
-        <button id="previewBtn" class="dock-btn">👁️ Preview</button>
-        <button id="publishBtn" class="dock-btn">🚀 Publish</button>
+      <div class="inspector-actions" style="display:flex;flex-direction:column;gap:8px;">
+        <button id="saveBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">💾 Save</button>
+        <button id="previewBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">👁️ Preview</button>
+        <button id="publishBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">🚀 Publish</button>
       </div>
-
     </aside>
 
   </div>
 
-  <!-- Logo placed in its own container below the main app.
-       It is NOT fixed; it sits in the normal document flow and will scroll with the page.
-       The container is full-width and aligns the logo to the right so it occupies the bottom-right area
-       without being inside the inspector or overlapping inspector controls. -->
-  <div style="width:100%; box-sizing:border-box; padding:12px 18px 40px 18px; display:flex; justify-content:flex-end; align-items:flex-end;">
-    <div aria-hidden="true" style="width:96px; flex:0 0 96px; margin-left:12px;">
-      <img src="../img/publish-logo.jpg" alt="Boardwalk logo" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.35);" />
+  <!-- Logo container placed directly after the main app.
+       It sits in the normal document flow and is aligned to the right.
+       Reduced vertical padding so the logo sits closer to the inspector without overlapping. -->
+  <div style="width:100%; box-sizing:border-box; padding:8px 18px 12px 18px; display:flex; justify-content:flex-end; align-items:flex-end;">
+    <div aria-hidden="true" style="width:88px; flex:0 0 88px; margin-left:12px;">
+      <img src="../img/publish-logo.jpg" alt="Boardwalk logo" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.28);" />
     </div>
   </div>
 
-  <!-- Correct relative path to the writer script (script lives in ../js relative to this page) -->
+  <!-- Correct relative path to the writer script (page is in pages/, script in /js) -->
   <script type="module" src="../js/writer.js"></script>
 </body>
 </html>
