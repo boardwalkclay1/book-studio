@@ -1,21 +1,23 @@
-// js/writer.js
-// IndexedDB-backed writer logic with localStorage fallback.
-// Features: list/get/save/delete books, autosave, image compression, export/import.
-// Place at /js/writer.js and include in pages/writer.html
-
-/* eslint-disable no-console */
+// /js/writer.js
+// Boardwalk Writer page logic (module)
+// - IndexedDB primary storage (boardwalk-db / books / meta)
+// - localStorage fallback
+// - Autosave, manual save, export/import, image compression
+// - Keeps same DOM IDs as your HTML
 
 const DB_NAME = 'boardwalk-db';
 const DB_VERSION = 1;
 const BOOK_STORE = 'books';
-const META_STORE = 'meta'; // for currentBook pointer, settings, etc.
-const AUTO_SAVE_DELAY = 800; // ms
-const AUTO_SAVE_INTERVAL = 30000; // ms
+const META_STORE = 'meta';
+const LS_BOOKS_KEY = 'books';
+const LS_CURRENT_KEY = 'currentBook';
+const AUTO_SAVE_DELAY = 800;
+const AUTO_SAVE_INTERVAL = 30000;
 
-// ---------- DOM helpers ----------
+// DOM helper
 const $ = id => document.getElementById(id);
 
-// UI elements (guarded)
+// UI elements (may be null if markup differs)
 const leftSidebar = $('leftSidebar');
 const editorContent = $('editorContent');
 const titleInput = $('chapterTitle');
@@ -60,56 +62,42 @@ function openDB() {
   });
 }
 
+function requestToPromise(req) {
+  return new Promise((resolve, reject) => {
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
 async function withIDB(txMode, callback) {
-  try {
-    const db = await openDB();
-    const tx = db.transaction([BOOK_STORE, META_STORE], txMode);
-    const stores = {
-      books: tx.objectStore(BOOK_STORE),
-      meta: tx.objectStore(META_STORE)
-    };
-    const result = await callback(stores);
-    return new Promise((resolve, reject) => {
-      tx.oncomplete = () => resolve(result);
-      tx.onerror = () => reject(tx.error);
-      tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
-    });
-  } catch (err) {
-    throw err;
-  }
+  const db = await openDB();
+  const tx = db.transaction([BOOK_STORE, META_STORE], txMode);
+  const stores = {
+    books: tx.objectStore(BOOK_STORE),
+    meta: tx.objectStore(META_STORE)
+  };
+  const result = await callback(stores);
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(result);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Transaction aborted'));
+  });
 }
 
 // ---------- localStorage fallback ----------
-const LS_BOOKS_KEY = 'books';
-const LS_CURRENT_KEY = 'currentBook';
-
 function lsGetBooks() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_BOOKS_KEY) || '[]');
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(LS_BOOKS_KEY) || '[]'); } catch { return []; }
 }
-function lsSaveBooks(arr) {
-  localStorage.setItem(LS_BOOKS_KEY, JSON.stringify(arr));
-}
-function lsGetCurrent() {
-  return localStorage.getItem(LS_CURRENT_KEY);
-}
-function lsSetCurrent(id) {
-  if (id == null) localStorage.removeItem(LS_CURRENT_KEY);
-  else localStorage.setItem(LS_CURRENT_KEY, id);
-}
+function lsSaveBooks(arr) { localStorage.setItem(LS_BOOKS_KEY, JSON.stringify(arr)); }
+function lsGetCurrent() { return localStorage.getItem(LS_CURRENT_KEY); }
+function lsSetCurrent(id) { if (id == null) localStorage.removeItem(LS_CURRENT_KEY); else localStorage.setItem(LS_CURRENT_KEY, id); }
 
-// ---------- Storage API (prefers IndexedDB, falls back to localStorage) ----------
+// ---------- Storage API ----------
 async function listBooks() {
   try {
-    return await withIDB('readonly', async (stores) => {
-      const req = stores.books.getAll();
-      return await requestToPromise(req);
-    });
-  } catch (err) {
-    // fallback
+    return await withIDB('readonly', async (stores) => requestToPromise(stores.books.getAll()));
+  } catch (e) {
+    console.warn('listBooks: falling back to localStorage', e);
     return lsGetBooks();
   }
 }
@@ -117,11 +105,8 @@ async function listBooks() {
 async function getBook(id) {
   if (!id) return null;
   try {
-    return await withIDB('readonly', async (stores) => {
-      const req = stores.books.get(id);
-      return await requestToPromise(req);
-    });
-  } catch (err) {
+    return await withIDB('readonly', async (stores) => requestToPromise(stores.books.get(id)));
+  } catch (e) {
     const books = lsGetBooks();
     return books.find(b => b.id === id) || null;
   }
@@ -131,14 +116,12 @@ async function saveBook(book) {
   if (!book || !book.id) throw new Error('Book must have an id');
   try {
     return await withIDB('readwrite', async (stores) => {
-      const req = stores.books.put(book);
-      await requestToPromise(req);
-      // also update meta currentBook
+      await requestToPromise(stores.books.put(book));
       await requestToPromise(stores.meta.put({ key: 'currentBook', value: book.id }));
       return book;
     });
-  } catch (err) {
-    // fallback to localStorage
+  } catch (e) {
+    console.warn('saveBook: falling back to localStorage', e);
     const books = lsGetBooks();
     const idx = books.findIndex(b => b.id === book.id);
     if (idx === -1) books.push(book); else books[idx] = book;
@@ -152,12 +135,11 @@ async function deleteBook(id) {
   try {
     return await withIDB('readwrite', async (stores) => {
       await requestToPromise(stores.books.delete(id));
-      // if currentBook, clear it
       const cur = await requestToPromise(stores.meta.get('currentBook'));
       if (cur && cur.value === id) await requestToPromise(stores.meta.delete('currentBook'));
       return true;
     });
-  } catch (err) {
+  } catch (e) {
     const books = lsGetBooks().filter(b => b.id !== id);
     lsSaveBooks(books);
     if (lsGetCurrent() === id) lsSetCurrent(null);
@@ -189,18 +171,10 @@ async function setCurrentBookId(id) {
   }
 }
 
-// helper to convert IDBRequest to Promise
-function requestToPromise(req) {
-  return new Promise((resolve, reject) => {
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-// ---------- Image compression helper ----------
+// ---------- Image compression ----------
 async function compressImageFile(file, maxWidth = 1200, quality = 0.78) {
   if (!file) return null;
-  if (!file.type.startsWith('image/')) return file;
+  if (!file.type || !file.type.startsWith('image/')) return file;
   return new Promise((resolve) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -218,106 +192,91 @@ async function compressImageFile(file, maxWidth = 1200, quality = 0.78) {
       ctx.drawImage(img, 0, 0, width, height);
       canvas.toBlob((blob) => {
         URL.revokeObjectURL(url);
-        // if compression produced larger blob, return original file
         if (!blob || blob.size >= file.size) resolve(file);
-        else {
-          // convert blob to File for consistent handling
-          const compressed = new File([blob], file.name, { type: blob.type });
-          resolve(compressed);
-        }
+        else resolve(new File([blob], file.name, { type: blob.type }));
       }, 'image/jpeg', quality);
     };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve(file);
-    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
     img.src = url;
   });
 }
 
-// ---------- Utility helpers ----------
+// ---------- Utilities ----------
 function uid(prefix = 'id') {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
 }
-
 function escapeHtml(str = '') {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 }
+function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    if (!blob) return resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(blob);
+  });
+}
+function base64ToBlob(dataURL) {
+  if (!dataURL) return null;
+  const parts = dataURL.split(',');
+  const meta = parts[0].match(/:(.*?);/);
+  const mime = meta ? meta[1] : 'application/octet-stream';
+  const bstr = atob(parts[1]);
+  let n = bstr.length;
+  const u8 = new Uint8Array(n);
+  while (n--) u8[n] = bstr.charCodeAt(n);
+  return new Blob([u8], { type: mime });
+}
 
-// ---------- App logic (structure similar to previous writer.js) ----------
+// ---------- App state ----------
 let currentPage = null;
 let autoSaveTimer = null;
 
+// ---------- Initialization ----------
 async function init() {
-  // ensure DB available or fallback
-  let books = [];
   try {
-    books = await listBooks();
-  } catch (e) {
-    console.warn('Storage listBooks failed, falling back to localStorage', e);
-    books = lsGetBooks();
-  }
-
-  if (!books || !books.length) {
-    // create demo book
-    const demo = {
-      id: 'book-1',
-      title: 'Untitled Book',
-      author: '',
-      created: new Date().toISOString(),
-      structure: {
-        frontMatter: [{ id: 'titlePage', type: 'page', label: 'Title Page', subtitle: '', content: '' }, { id: 'toc', type: 'toc', label: 'Table of Contents', subtitle: '', content: '' }],
-        parts: [{ id: 'part1', type: 'part', label: 'Part 1', subtitle: '', chapters: [{ id: 'part1-ch1', type: 'chapter', label: 'Chapter 1', subtitle: '', content: '<p>Start writing...</p>' }] }],
-        backMatter: [{ id: 'aboutAuthor', type: 'page', label: 'About the Author', subtitle: '', content: '' }]
-      }
-    };
-    try {
+    let books = await listBooks();
+    if (!books || !books.length) {
+      const demo = {
+        id: uid('book'),
+        title: 'Untitled Book',
+        author: '',
+        created: new Date().toISOString(),
+        structure: {
+          frontMatter: [{ id: 'titlePage', type: 'page', label: 'Title Page', subtitle: '', content: '' }],
+          parts: [{ id: 'part1', type: 'part', label: 'Part 1', subtitle: '', chapters: [{ id: 'part1-ch1', type: 'chapter', label: 'Chapter 1', subtitle: '', content: '<p>Start writing...</p>' }] }],
+          backMatter: []
+        }
+      };
       await saveBook(demo);
       await setCurrentBookId(demo.id);
       books = [demo];
-    } catch (e) {
-      // fallback localStorage
-      lsSaveBooks([demo]);
-      lsSetCurrent(demo.id);
-      books = [demo];
     }
-  }
 
-  // render sidebar and load first page
-  await renderSidebar();
-  const currentId = await getCurrentBookId();
-  const book = currentId ? await getBook(currentId) : (books[0] || null);
-  if (book) {
-    await ensureBookStructure(book);
-    // load first front matter or first chapter
-    const firstFront = (book.structure.frontMatter && book.structure.frontMatter[0]) || null;
-    if (firstFront) loadPage(firstFront.id);
-    else if (book.structure.parts && book.structure.parts[0] && book.structure.parts[0].chapters && book.structure.parts[0].chapters[0]) {
-      loadPage(book.structure.parts[0].chapters[0].id);
+    await renderSidebar();
+    const currentId = await getCurrentBookId();
+    const book = currentId ? await getBook(currentId) : (books[0] || null);
+    if (book) {
+      await ensureBookStructure(book);
+      const first = (book.structure.frontMatter && book.structure.frontMatter[0]) || (book.structure.parts && book.structure.parts[0] && book.structure.parts[0].chapters && book.structure.parts[0].chapters[0]) || null;
+      if (first) loadPage(first.id);
     }
+
+    applyEditorSettings();
+    updateWordStats();
+    refreshInspector();
+
+    setInterval(() => persistCurrentPage(), AUTO_SAVE_INTERVAL);
+  } catch (err) {
+    console.error('Init error', err);
   }
-
-  applyEditorSettings();
-  updateWordStats();
-  refreshInspector();
-
-  // autosave safety net
-  setInterval(() => persistCurrentPage(), AUTO_SAVE_INTERVAL);
 }
 
 // ---------- Structure helpers ----------
 async function ensureBookStructure(book) {
   if (!book.structure) {
-    book.structure = {
-      frontMatter: [
-        { id: 'titlePage', type: 'page', label: 'Title Page', subtitle: '', content: '' },
-        { id: 'toc', type: 'toc', label: 'Table of Contents', subtitle: '', content: '' }
-      ],
-      parts: [],
-      backMatter: [
-        { id: 'aboutAuthor', type: 'page', label: 'About the Author', subtitle: '', content: '' }
-      ]
-    };
+    book.structure = { frontMatter: [], parts: [], backMatter: [] };
     await saveBook(book);
   }
 }
@@ -405,7 +364,6 @@ async function persistCurrentPage() {
   if (subtitleInput) currentPage.subtitle = subtitleInput.value;
   if (editorContent) currentPage.content = String(editorContent.innerHTML || '');
 
-  // update structure in book and save
   await saveBook(book);
 
   const now = new Date().toLocaleString();
@@ -473,11 +431,7 @@ async function generateTOC() {
 
 function countWordsFromHtml(input = '') {
   if (input == null) return 0;
-  if (typeof input === 'object' && input.nodeType && typeof input.textContent === 'string') {
-    input = input.textContent;
-  } else if (Array.isArray(input)) {
-    input = input.map(i => (i == null ? '' : (typeof i === 'string' ? i : String(i)))).join(' ');
-  } else if (typeof input !== 'string') {
+  if (typeof input !== 'string') {
     try { input = String(input); } catch { input = ''; }
   }
   const text = input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -531,7 +485,7 @@ async function updateWordStats() {
   if (inspectorChapters) inspectorChapters.textContent = String(totalChapters);
 }
 
-// ---------- Editor integrations & UI bindings ----------
+// ---------- Editor & toolbar ----------
 function applyEditorSettings() {
   const size = fontSizeSelect ? fontSizeSelect.value : '16';
   const line = lineSpaceSelect ? lineSpaceSelect.value : '1.6';
@@ -574,7 +528,7 @@ function insertNodeAtCaret(node) {
   sel.addRange(range);
 }
 
-// formatting toolbar (if present)
+// formatting toolbar
 document.querySelectorAll('[data-cmd]').forEach(btn => {
   btn.addEventListener('click', () => {
     const cmd = btn.dataset.cmd;
@@ -583,32 +537,6 @@ document.querySelectorAll('[data-cmd]').forEach(btn => {
     scheduleAutoSave();
   });
 });
-
-// font family/size handlers
-if (fontFamilySelect) fontFamilySelect.addEventListener('change', () => {
-  try { document.execCommand('fontName', false, fontFamilySelect.value); } catch (e) { /* ignore */ }
-  if (editorContent) editorContent.focus();
-  scheduleAutoSave();
-});
-if (fontSizeSelect) fontSizeSelect.addEventListener('change', () => {
-  applyStyleToSelection('font-size', `${fontSizeSelect.value}px`);
-  scheduleAutoSave();
-});
-
-function applyStyleToSelection(prop, value) {
-  if (!editorContent) return;
-  const sel = window.getSelection();
-  if (!sel || !sel.rangeCount) return;
-  const range = sel.getRangeAt(0);
-  const span = document.createElement('span');
-  span.style[prop] = value;
-  span.appendChild(range.extractContents());
-  range.insertNode(span);
-  range.setStartAfter(span);
-  range.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(range);
-}
 
 // ---------- Editor events ----------
 if (editorContent) {
@@ -633,81 +561,49 @@ if (previewBtn) previewBtn.addEventListener('click', () => {
 if (publishBtn) publishBtn.addEventListener('click', async () => { await persistCurrentPage(); window.location.href = '../pages/publish.html'; });
 
 // ---------- Export / Import ----------
-async function exportAllBooks() {
-  // returns a Blob (application/json) representing all books (metadata + base64 blobs for images)
+async function exportBooksToBlob() {
   const books = await listBooks();
-  // convert any File/Blob fields to base64 to include in JSON
   const serialized = await Promise.all(books.map(async (b) => {
     const copy = JSON.parse(JSON.stringify(b));
-    // if cover is a Blob/File, convert to base64
-    if (copy.cover && (copy.cover instanceof Blob || copy.cover instanceof File)) {
-      copy.cover = await blobToBase64(copy.cover);
+    if (b.cover && (b.cover instanceof Blob || b.cover instanceof File)) {
+      copy.cover = await blobToBase64(b.cover);
     }
     return copy;
   }));
-  const blob = new Blob([JSON.stringify(serialized)], { type: 'application/json' });
-  return blob;
+  return new Blob([JSON.stringify(serialized, null, 2)], { type: 'application/json' });
 }
 
-async function importBooks(file) {
-  // file: File object (JSON)
+async function importBooksFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed)) throw new Error('Invalid import format');
-        // convert base64 cover back to Blob if present
         for (const b of parsed) {
           if (b.cover && typeof b.cover === 'string' && b.cover.startsWith('data:')) {
             b.cover = base64ToBlob(b.cover);
           }
-          // ensure id exists
           if (!b.id) b.id = uid('book');
           await saveBook(b);
         }
         await renderSidebar();
         resolve(true);
-      } catch (e) {
-        reject(e);
-      }
+      } catch (e) { reject(e); }
     };
     reader.onerror = () => reject(reader.error);
     reader.readAsText(file);
   });
 }
 
-function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
-function base64ToBlob(dataURL) {
-  const parts = dataURL.split(',');
-  const meta = parts[0].match(/:(.*?);/);
-  const mime = meta ? meta[1] : 'application/octet-stream';
-  const bstr = atob(parts[1]);
-  let n = bstr.length;
-  const u8 = new Uint8Array(n);
-  while (n--) u8[n] = bstr.charCodeAt(n);
-  return new Blob([u8], { type: mime });
-}
+// ---------- Public API & init ----------
+window.BoardwalkWriter = {
+  listBooks,
+  getBook,
+  saveBook,
+  deleteBook,
+  exportBooksToBlob,
+  importBooksFromFile
+};
 
-// ---------- Utilities ----------
-function escapeHtml(str = '') {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
-}
-
-// ---------- Initialization ----------
-init().catch(err => {
-  console.error('Writer init failed', err);
-  // fallback: try to render sidebar from localStorage
-  const books = lsGetBooks();
-  if (leftSidebar) {
-    if (!books.length) leftSidebar.innerHTML = `<div class="empty-state">No active book. Open the library.</div>`;
-    else leftSidebar.innerHTML = '<div class="tree-block"><h4>Books</h4><ul>' + books.map(b => `<li class="tree-node">${escapeHtml(b.title || 'Untitled')}</li>`).join('') + '</ul></div>';
-  }
-});
+init().catch(err => console.error('Writer init failed', err));
