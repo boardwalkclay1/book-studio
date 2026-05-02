@@ -16,7 +16,11 @@ const closeModal = document.getElementById("closeModal");
 
 // STORAGE HELPERS
 function getBooks() {
-  return JSON.parse(localStorage.getItem("books") || "[]");
+  try {
+    return JSON.parse(localStorage.getItem("books")) || [];
+  } catch {
+    return [];
+  }
 }
 
 function saveBooks(books) {
@@ -26,6 +30,17 @@ function saveBooks(books) {
 function openBook(id) {
   localStorage.setItem("currentBook", id);
   window.location.href = "pages/writer.html";
+}
+
+// RESET MODAL FIELDS
+function resetModal() {
+  titleInput.value = "";
+  subtitleInput.value = "";
+  authorInput.value = "";
+  genreInput.value = "";
+  audienceInput.value = "";
+  descInput.value = "";
+  coverInput.value = "";
 }
 
 // RENDER BOOK GRID
@@ -101,9 +116,10 @@ function deleteBook(id) {
   loadBooks();
 }
 
-// EDIT BOOK (opens modal pre-filled)
+// EDIT BOOK
 function editBook(id) {
-  const book = getBooks().find(b => b.id === id);
+  const books = getBooks();
+  const book = books.find(b => b.id === id);
   if (!book) return;
 
   titleInput.value = book.title;
@@ -123,24 +139,30 @@ function editBook(id) {
     book.audience = audienceInput.value.trim();
     book.description = descInput.value.trim();
 
-    saveBooks(getBooks());
+    saveBooks(books);
     newBookModal.classList.add("hidden");
+    resetModal();
     loadBooks();
   };
 }
 
 // SHOW MODAL
 newBookBtn.onclick = () => {
+  resetModal();
   newBookModal.classList.remove("hidden");
+
+  // Reset confirm button to CREATE mode
+  createBookConfirm.onclick = createNewBook;
 };
 
 // CLOSE MODAL
 closeModal.onclick = () => {
   newBookModal.classList.add("hidden");
+  resetModal();
 };
 
 // CREATE NEW BOOK
-createBookConfirm.onclick = () => {
+function createNewBook() {
   const title = titleInput.value.trim();
   if (!title) return alert("Book needs a title.");
 
@@ -148,16 +170,16 @@ createBookConfirm.onclick = () => {
 
   if (file) {
     const reader = new FileReader();
-    reader.onload = () => {
-      saveNewBook(reader.result);
-    };
+    reader.onload = () => saveNewBook(reader.result);
     reader.readAsDataURL(file);
   } else {
     saveNewBook(null);
   }
-};
+}
 
 function saveNewBook(coverData) {
+  const books = getBooks();
+
   const newBook = {
     id: "book-" + Date.now(),
     title: titleInput.value.trim(),
@@ -168,14 +190,32 @@ function saveNewBook(coverData) {
     description: descInput.value.trim(),
     cover: coverData,
     created: Date.now(),
-    structure: null
+    structure: {
+      frontMatter: [
+        { id: "fm-title", type: "front", label: "Title Page", content: "" },
+        { id: "fm-toc", type: "toc", label: "Table of Contents", content: "" }
+      ],
+      parts: [
+        {
+          id: "part1",
+          type: "part",
+          label: "Part 1",
+          chapters: [
+            { id: "part1-ch1", type: "chapter", label: "Chapter 1", content: "" }
+          ]
+        }
+      ],
+      backMatter: [
+        { id: "bm-about", type: "back", label: "About the Author", content: "" }
+      ]
+    }
   };
 
-  const books = getBooks();
   books.push(newBook);
   saveBooks(books);
 
   newBookModal.classList.add("hidden");
+  resetModal();
   loadBooks();
 }
 
