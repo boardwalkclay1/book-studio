@@ -10,7 +10,7 @@
 
   <!-- Social preview -->
   <meta property="og:title" content="Boardwalk Book Studio — Writer" />
-  <meta property="og:description" content="Write, structure, and publish your book." />
+  <meta property="og:description" content="Write, structure, and publish your book with cinematic tools." />
   <meta property="og:image" content="../img/publish-logo.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="../img/publish-logo.jpg" />
@@ -19,132 +19,143 @@
 </head>
 <body>
 
-  <!-- Background image (decorative) -->
-  <img src="../img/bp-back.jpg" alt="" aria-hidden="true" class="bg-img" />
+  <!-- Background -->
+  <img src="../img/bp-back.jpg" class="bg-img" aria-hidden="true" />
 
   <div id="app" class="writer-layout">
 
-    <!-- LEFT: structure tree -->
-    <aside class="panel panel-left" id="leftSidebar" role="navigation" aria-label="Book structure"></aside>
+    <!-- LEFT SIDEBAR -->
+    <aside id="leftSidebar" class="panel panel-left">
 
-    <!-- CENTER: editor column -->
-    <main class="panel panel-center" role="main" aria-label="Editor">
+      <h2 class="sidebar-title">Book Structure</h2>
 
-      <!-- TITLE ROW -->
-      <div class="panel-header" style="display:flex;gap:12px;align-items:center;">
-        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" aria-label="Page title" />
-        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" aria-label="Page subtitle" />
+      <!-- FRONT MATTER -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <span>Front Matter</span>
+          <button class="sidebar-add-btn tree-add-front">+</button>
+        </div>
+        <ul class="sidebar-list" id="frontMatterList"></ul>
       </div>
 
-      <!-- TOOLBAR (formatting controls) -->
-      <div id="editorToolbar" class="toolbar" role="toolbar" aria-label="Editor toolbar" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-        <div style="display:flex;gap:6px;align-items:center;">
-          <button type="button" data-cmd="bold" class="tool-btn" title="Bold"><strong>B</strong></button>
-          <button type="button" data-cmd="italic" class="tool-btn" title="Italic"><em>I</em></button>
-          <button type="button" data-cmd="underline" class="tool-btn" title="Underline"><u>U</u></button>
+      <!-- PARTS & CHAPTERS -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <span>Parts & Chapters</span>
+          <button class="sidebar-add-btn tree-add-part">+</button>
         </div>
+        <div id="partsContainer"></div>
+      </div>
 
-        <div style="display:flex;gap:8px;align-items:center;">
-          <label class="tool-label" style="margin:0 6px 0 0;">Font</label>
-          <select id="fontFamilySelect" class="tool-select" title="Font family">
-            <option value="Inter, system-ui">Inter</option>
-            <option value="Georgia, serif">Georgia</option>
-            <option value="Times New Roman, serif">Times New Roman</option>
-            <option value="Arial, sans-serif">Arial</option>
-          </select>
+      <!-- BACK MATTER -->
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <span>Back Matter</span>
+          <button class="sidebar-add-btn tree-add-back">+</button>
         </div>
+        <ul class="sidebar-list" id="backMatterList"></ul>
+      </div>
 
-        <div style="display:flex;gap:8px;align-items:center;">
-          <label class="tool-label" style="margin:0 6px 0 0;">Size</label>
-          <select id="fontSizeSelect" class="tool-select" title="Font size">
-            <option value="14">14px</option>
-            <option value="16" selected>16px</option>
-            <option value="18">18px</option>
-            <option value="20">20px</option>
-          </select>
-        </div>
+    </aside>
 
-        <div style="display:flex;gap:8px;align-items:center;">
-          <label class="tool-label" style="margin:0 6px 0 0;">Line</label>
-          <select id="lineSpaceSelect" class="tool-select" title="Line spacing">
-            <option value="1.2">1.2</option>
-            <option value="1.5" selected>1.5</option>
-            <option value="1.8">1.8</option>
-            <option value="2.0">2.0</option>
-          </select>
-        </div>
+    <!-- CENTER EDITOR -->
+    <main class="panel panel-center">
 
-        <div style="display:flex;gap:8px;align-items:center;">
-          <label class="tool-label" style="margin:0 6px 0 0;">Letter</label>
-          <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range" title="Letter spacing">
-        </div>
+      <div class="panel-header">
+        <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" />
+        <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" />
+      </div>
 
-        <div style="margin-left:auto; display:flex;align-items:center;">
-          <button id="insertSceneBreak" class="btn btn-gold" type="button" style="display:inline-flex;align-items:center;justify-content:center;">Scene Break</button>
-        </div>
+      <!-- TOOLBAR -->
+      <div id="editorToolbar" class="toolbar">
+        <button data-cmd="bold" class="tool-btn"><strong>B</strong></button>
+        <button data-cmd="italic" class="tool-btn"><em>I</em></button>
+        <button data-cmd="underline" class="tool-btn"><u>U</u></button>
+
+        <label>Font</label>
+        <select id="fontFamilySelect" class="tool-select">
+          <option value="Inter, system-ui">Inter</option>
+          <option value="Georgia, serif">Georgia</option>
+          <option value="Times New Roman, serif">Times New Roman</option>
+          <option value="Arial, sans-serif">Arial</option>
+        </select>
+
+        <label>Size</label>
+        <select id="fontSizeSelect" class="tool-select">
+          <option value="14">14px</option>
+          <option value="16" selected>16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+
+        <label>Line</label>
+        <select id="lineSpaceSelect" class="tool-select">
+          <option value="1.2">1.2</option>
+          <option value="1.5" selected>1.5</option>
+          <option value="1.8">1.8</option>
+          <option value="2.0">2.0</option>
+        </select>
+
+        <label>Letter</label>
+        <input type="range" id="letterSpaceSelect" min="0" max="6" value="0" class="tool-range">
+
+        <button id="insertSceneBreak" class="btn btn-gold">Scene Break</button>
+        <button id="focusModeBtn" class="btn btn-gold">Focus Mode</button>
       </div>
 
       <!-- EDITOR -->
-      <div id="editorContent" class="editor" contenteditable="true" aria-label="Document editor" data-placeholder="Start writing your story..." style="min-height:420px; padding:18px;">
+      <div id="editorContent" class="editor" contenteditable="true">
         Start writing your story...
       </div>
 
-      <!-- BOTTOM STATS -->
-      <div class="stats-panel" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;">
+      <!-- STATS -->
+      <div class="stats-panel">
         <div id="wordStats">Words: 0 • Chapters: 0</div>
         <div id="saveIndicator">Saved</div>
       </div>
 
     </main>
 
-    <!-- RIGHT: inspector / current page box -->
-    <aside class="panel panel-right" id="rightInspector" role="complementary" aria-label="Page inspector" style="display:flex;flex-direction:column;gap:12px;">
+    <!-- RIGHT INSPECTOR -->
+    <aside class="panel panel-right">
+
       <h3 class="inspector-heading">Current Page</h3>
 
       <div class="inspector-row">
         <label>Title</label>
-        <div id="inspectorTitle" class="inspector-value">—</div>
+        <div id="inspectorTitle">—</div>
       </div>
 
       <div class="inspector-row">
         <label>Subtitle</label>
-        <div id="inspectorSubtitle" class="inspector-value">—</div>
+        <div id="inspectorSubtitle">—</div>
       </div>
 
       <div class="inspector-row">
         <label>Words</label>
-        <div id="inspectorWords" class="inspector-value">0</div>
+        <div id="inspectorWords">0</div>
       </div>
 
       <div class="inspector-row">
         <label>Chapters</label>
-        <div id="inspectorChapters" class="inspector-value">0</div>
+        <div id="inspectorChapters">0</div>
       </div>
 
       <div class="inspector-row">
         <label>Last saved</label>
-        <div id="inspectorSaved" class="inspector-value">—</div>
+        <div id="inspectorSaved">—</div>
       </div>
 
-      <div class="inspector-actions" style="display:flex;flex-direction:column;gap:8px;">
-        <button id="saveBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">💾 Save</button>
-        <button id="previewBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">👁️ Preview</button>
-        <button id="publishBtn" class="dock-btn" style="display:inline-flex;align-items:center;justify-content:center;">🚀 Publish</button>
+      <div class="inspector-actions">
+        <button id="saveBtn" class="dock-btn">💾 Save</button>
+        <button id="previewBtn" class="dock-btn">👁️ Preview</button>
+        <button id="publishBtn" class="dock-btn">🚀 Publish</button>
       </div>
+
     </aside>
 
   </div>
 
-  <!-- Logo container placed directly after the main app.
-       It sits in the normal document flow and is aligned to the right.
-       Reduced vertical padding so the logo sits closer to the inspector without overlapping. -->
-  <div style="width:100%; box-sizing:border-box; padding:8px 18px 12px 18px; display:flex; justify-content:flex-end; align-items:flex-end;">
-    <div aria-hidden="true" style="width:88px; flex:0 0 88px; margin-left:12px;">
-      <img src="../img/publish-logo.jpg" alt="Boardwalk logo" style="width:100%; height:auto; display:block; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,0.28);" />
-    </div>
-  </div>
-
-  <!-- Correct relative path to the writer script (page is in pages/, script in /js) -->
-  <script type="module" src="../js/writer.js"></script>
+  <script src="../js/writer.js"></script>
 </body>
 </html>
