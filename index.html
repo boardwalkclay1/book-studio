@@ -20,6 +20,46 @@
   <meta property="og:image" content="img/publish-logo.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="img/publish-logo.jpg" />
+
+  <style>
+    /* BRAND BUTTON CONTAINER */
+    .brand-btn {
+      position: fixed;
+      top: 18px;
+      left: 18px;
+      width: 78px;
+      height: 78px;
+      padding: 0;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      cursor: pointer;
+    }
+
+    /* LOGO CONTAINER */
+    .brand-logo-container {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.25);
+    }
+
+    /* LOGO IMAGE */
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
@@ -35,8 +75,10 @@
   </div>
 
   <!-- BRAND BUTTON (links to publishing website) -->
-  <a href="https://boardwalkpublishing.com" id="brandBtn" class="brand-btn" aria-label="Boardwalk Publishing Home">
-    <img src="img/publish-logo.jpg" alt="Boardwalk Publishing Logo" class="brand-logo-img">
+  <a href="https://boardwalkpublishing.com" class="brand-btn" aria-label="Boardwalk Publishing Home">
+    <div class="brand-logo-container">
+      <img src="img/publish-logo.jpg" alt="Boardwalk Publishing Logo" class="brand-logo-img">
+    </div>
   </a>
 
   <main id="libraryApp" class="library-app">
