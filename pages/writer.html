@@ -5,68 +5,60 @@
   <title>Boardwalk Book Studio — Writer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="../img/publish-logo.jpg" />
 
-  <!-- Social preview -->
   <meta property="og:title" content="Boardwalk Book Studio — Writer" />
   <meta property="og:description" content="Write, structure, and publish your book with cinematic tools." />
   <meta property="og:image" content="../img/publish-logo.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="../img/publish-logo.jpg" />
 
-  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="writer.css" />
 </head>
+
 <body>
 
-  <!-- Background -->
   <img src="../img/bp-back.jpg" class="bg-img" aria-hidden="true" />
 
   <div id="app" class="writer-layout">
 
     <!-- LEFT SIDEBAR -->
-    <aside id="leftSidebar" class="panel panel-left">
-
+    <aside class="panel panel-left">
       <h2 class="sidebar-title">Book Structure</h2>
 
-      <!-- FRONT MATTER -->
-      <div class="sidebar-section">
-        <div class="sidebar-header">
+      <section class="sidebar-section">
+        <header class="sidebar-header">
           <span>Front Matter</span>
           <button class="sidebar-add-btn tree-add-front">+</button>
-        </div>
-        <ul class="sidebar-list" id="frontMatterList"></ul>
-      </div>
+        </header>
+        <ul id="frontMatterList" class="sidebar-list"></ul>
+      </section>
 
-      <!-- PARTS & CHAPTERS -->
-      <div class="sidebar-section">
-        <div class="sidebar-header">
+      <section class="sidebar-section">
+        <header class="sidebar-header">
           <span>Parts & Chapters</span>
           <button class="sidebar-add-btn tree-add-part">+</button>
-        </div>
+        </header>
         <div id="partsContainer"></div>
-      </div>
+      </section>
 
-      <!-- BACK MATTER -->
-      <div class="sidebar-section">
-        <div class="sidebar-header">
+      <section class="sidebar-section">
+        <header class="sidebar-header">
           <span>Back Matter</span>
           <button class="sidebar-add-btn tree-add-back">+</button>
-        </div>
-        <ul class="sidebar-list" id="backMatterList"></ul>
-      </div>
-
+        </header>
+        <ul id="backMatterList" class="sidebar-list"></ul>
+      </section>
     </aside>
 
     <!-- CENTER EDITOR -->
     <main class="panel panel-center">
 
-      <div class="panel-header">
+      <header class="panel-header">
         <input id="chapterTitle" class="chapter-title-input" placeholder="Page title" />
         <input id="chapterSubtitle" class="chapter-subtitle-input" placeholder="Subtitle (optional)" />
-      </div>
+      </header>
 
-      <!-- TOOLBAR -->
       <div id="editorToolbar" class="toolbar">
         <button data-cmd="bold" class="tool-btn"><strong>B</strong></button>
         <button data-cmd="italic" class="tool-btn"><em>I</em></button>
@@ -103,16 +95,14 @@
         <button id="focusModeBtn" class="btn btn-gold">Focus Mode</button>
       </div>
 
-      <!-- EDITOR -->
       <div id="editorContent" class="editor" contenteditable="true">
         Start writing your story...
       </div>
 
-      <!-- STATS -->
-      <div class="stats-panel">
+      <footer class="stats-panel">
         <div id="wordStats">Words: 0 • Chapters: 0</div>
         <div id="saveIndicator">Saved</div>
-      </div>
+      </footer>
 
     </main>
 
